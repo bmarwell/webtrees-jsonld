@@ -1,0 +1,3 @@
+[submodule "src/webtrees"]
+	path = src/webtrees
+	url = git@github.com:fisharebest/webtrees.git
