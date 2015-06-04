@@ -14,16 +14,33 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use WT\Log;
+include_once WT_MODULES_DIR.'jsonld/JsonLD.php';
+include_once WT_MODULES_DIR.'jsonld/Person.php';
+include_once WT_MODULES_DIR.'jsonld/Address.php';
+include_once WT_MODULES_DIR.'jsonld/JsonLDTools.php';
+
+/**
+ * Class implementing application/ld+json output.
+ * @author bmarwell
+ *
+ */
 class jsonld_WT_Module extends WT_Module implements WT_Module_Tab {
 	
-	/*
+	/* ****************************
 	 * Module configuration
-	 */
+	 * ****************************/
 	public function getTitle() {
 		return "JsonLD";
 	}
+	
 	public function getDescription() {
 		return "Adds json-ld-data to persons as described in schema.org/Person";
+	}
+	
+	/** {@inheritdoc} */
+	public function defaultAccessLevel() {
+		return WT_PRIV_PUBLIC;
 	}
 	
 	/* ****************************
@@ -46,33 +63,37 @@ class jsonld_WT_Module extends WT_Module implements WT_Module_Tab {
 	 * @return string
 	*/
 	public function getTabContent() {
-		$jsonld = <<<EOT
-<script type="application/ld+json">
-{
-  "@context": "http://schema.org",
-  "@type": "Person",
-  "image": "%%image%%",
-  "name": "%%fullname%%",
-  "gender": "%%gender%%"
-}
-</script>
-EOT;
-		// get values for replacement
-		// TODO: care about null…
+		ini_set("display_errors", "1");
+		error_reporting(E_ALL);
+		$jsonld = "";
+		
+		Log::addDebugLog("creating person");
+		$person = new Person(true);
+		
+		
 		global $controller;
-// 		$person = $controller->getSignificantIndividual();
-		$fullname =  $controller->record->getFullName();
-		$media = $controller->record->findHighlightedMedia();
-		$gender = $controller->record->getSex();
+		Log::addDebugLog("assigning values.");
+		$person = JsonLDTools::fillPersonFromRecord($person, $controller->record);
 		
-		// insert values.
-		// TODO: care about NULL;
-		$jsonld = str_replace("%%image%%", $media, $jsonld);
-		$jsonld = str_replace("%%fullname%%", strip_tags($fullname), $jsonld);
-		$jsonld = str_replace("%%gender%%", $gender, $jsonld);
-		$jsonld = $jsonld . '<pre>' . htmlspecialchars($jsonld) . '</pre>';
+		sleep(1);
+
+		Log::addDebugLog("Person Object created. Serializing…");
+		$jsonld = JsonLDTools::jsonize($person);
 		
-		return $jsonld;
+		sleep(1);
+		Log::addDebugLog("Returning json object");
+		
+		return static::getScriptTags($jsonld) . static::getTags($jsonld, "pre");
+	}
+	
+	private static function getTags($stringenclosed, $tag = 'pre') {
+		return "<$tag>" . $stringenclosed . "</$tag>";
+	}
+	
+	private static function getScriptTags($stringenclosed) {
+		return 
+			  '<script type="application/ld+json" id="json-ld-data">'
+			.  $stringenclosed . '</script>';
 	}
 	
 	/**
@@ -83,7 +104,9 @@ EOT;
 	public function hasTabContent() {
 		global $controller;
 		
-		return $controller->record->canShowName();
+		return 
+			(sizeof($controller->record->getAllNames()) > 0) /* no names, no cookies */ 
+			&& ($controller->record->canShowName());         /* no id */
 	}
 	
 	/**
@@ -115,4 +138,7 @@ EOT;
 	public function isGrayedOut() {
 		return false;
 	}
+	
 }
+
+class foo { };
