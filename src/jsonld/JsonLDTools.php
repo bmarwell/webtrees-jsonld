@@ -44,15 +44,33 @@ class JsonLDTools {
 	 * Unset empty fields from object.
 	 * @param Object $obj
 	 */
-	private static function empty_object($obj) {
-		// TODO: if array, recursion for each array element…
-		// then return the array;
+	private static function empty_object(&$obj) {
+		
+		if (is_array($obj)) {
+			/* 
+			 * arrays cannot be modified this easily,
+			 * a new one is passed for readability.
+			 */
+			$newarray = array();
+			foreach ($obj as $key => $value) {
+				array_push($newarray, static::empty_object($value));
+			}
+			
+			return $newarray;
+		} else if (is_string($obj)) {
+			/* this is just fine */
+			return $obj;
+		}
 		
 		$returnobj = clone $obj;
 		
 		foreach (get_object_vars($returnobj) as $key => $value) {
 			if (is_object($value)) {
-				static::empty_object($returnobj->$key);
+				$value = static::empty_object($returnobj->$key);
+			}
+			
+			if (is_array($value)) {
+				$returnobj->$key = static::empty_object($returnobj->$key);
 			}
 			
 			if (empty($value)) {
