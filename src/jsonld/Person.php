@@ -16,6 +16,9 @@
  
 use WT\Log;
 
+/**
+ * Person for serializing into json-ld. Vars have name from schema.org.
+ */
 class Person extends JsonLD {
 	var $name;
 	var $birthDate;

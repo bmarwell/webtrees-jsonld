@@ -30,10 +30,12 @@ class jsonld_WT_Module extends WT_Module implements WT_Module_Tab {
 	/* ****************************
 	 * Module configuration
 	 * ****************************/
+	/** {@inheritdoc} */
 	public function getTitle() {
 		return "JsonLD";
 	}
 	
+	/** {@inheritdoc} */
 	public function getDescription() {
 		return "Adds json-ld-data to persons as described in schema.org/Person";
 	}

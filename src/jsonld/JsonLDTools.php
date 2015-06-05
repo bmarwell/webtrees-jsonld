@@ -15,21 +15,26 @@
  */
 use WT\Log;
 
+/**
+ * Various static function used for JsonLD-output.
+ * @author bmarwell
+ *
+ */
 class JsonLDTools {
 	/**
 	 * Serialize an object into json. Empty values are stripped 
 	 * by unsetting the fields.
-	 * @param unknown $jsonldobject
+	 * @param Person $jsonldobject the person (or any other object) to jsonize.
 	 * @return Object the uncluttered object, no null values.
 	 */
 	public static function jsonize($jsonldobject) {
+		// FIXME: Possible fatal error because we did not check for object.
 		/* create a new object, so we don't modify the original one. */
 		$returnobj = clone $jsonldobject;
 		
 		$returnobj = static::empty_object($returnobj);
 	
 		/* strip empty key/value-pairs */
-		Log::addDebugLog("outer unclutter " . serialize($returnobj));
 		$returnobj = (object) array_filter((array) $returnobj);
 		
 		return $returnobj;
@@ -63,7 +68,7 @@ class JsonLDTools {
 	 * For a given person object (re-)set the fields with sane 
 	 * values from a gedcom-record.
 	 * @var Person $person
-	 * @var GedcomRecord $record
+	 * @var WT_GedcomRecord $record
 	 */
 	public static function fillPersonFromRecord($person, $record) {
 		// TODO: strip html
@@ -72,7 +77,7 @@ class JsonLDTools {
 		$person->gender = $record->getSex();
 		
 		/* Dates */
-		// XXX: match beginning and end of string
+		// XXX: match beginning and end of string, doesn't seem to work.
 		$birthdate = $record->getBirthDate()->display(false, '%Y-%m-%d', false);
 		if (preg_match('/[0-9]{4}-[0-9]{2}-[0-9]{2}/', $birthdate) === 1) {
 			$person->birthDate = strip_tags($birthdate);
@@ -98,8 +103,8 @@ class JsonLDTools {
 	
 	/**
 	 * Adds parents to a person, taken from the supplied record.
-	 * @var Person $person
-	 * @var GedcomRecord $record
+	 * @var Person $person the person where parents should be added to.
+	 * @var WT_GedcomRecord $record the person's gedcom record.
 	 */
 	public static function addParentsFromRecord($person, $record) {
 		$parentFamily = $record->getPrimaryChildFamily();
@@ -110,11 +115,11 @@ class JsonLDTools {
 		
 		$husband = new Person();
 		$husband = static::fillPersonFromRecord($husband, $parentFamily->getHusband());
-		array_push($person->parents, $husband);
+		$person->addParent($husband);
 		
 		$wife = new Person();
 		$wife = static::fillPersonFromRecord($wife, $parentFamily->getWife());
-		array_push($person->parents, $wife);
+		$person->addParent($wife);
 		
 		return $person;
 	}
