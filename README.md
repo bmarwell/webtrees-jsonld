@@ -27,7 +27,7 @@ the human-readable version inside a html pre-tag.
 
 ### Links
 
-* [Webtrees: Schema.org](http://www.webtrees.net/index.php/en/forum/2-open-discussion/27014-schema-org).
+* Forum discussion: [Webtrees: Schema.org](http://www.webtrees.net/index.php/en/forum/2-open-discussion/27014-schema-org).
 * The parent project’s website is [webtrees.net](http://webtrees.net).
 * German Description (TBD).
 
