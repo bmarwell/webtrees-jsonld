@@ -72,16 +72,12 @@ class jsonld_WT_Module extends WT_Module implements WT_Module_Tab {
 		
 		
 		global $controller;
-		Log::addDebugLog("assigning values.");
 		$person = JsonLDTools::fillPersonFromRecord($person, $controller->record);
+		$person = JsonLDTools::addParentsFromRecord($person, $controller->record);
 		
-		sleep(1);
-
-		Log::addDebugLog("Person Object created. Serializing…");
-		$jsonld = JsonLDTools::jsonize($person);
-		
-		sleep(1);
-		Log::addDebugLog("Returning json object");
+		$jsonld = json_encode(
+				JsonLDTools::jsonize($person), 
+				JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 		
 		return static::getScriptTags($jsonld) . static::getTags($jsonld, "pre");
 	}
@@ -140,5 +136,3 @@ class jsonld_WT_Module extends WT_Module implements WT_Module_Tab {
 	}
 	
 }
-
-class foo { };

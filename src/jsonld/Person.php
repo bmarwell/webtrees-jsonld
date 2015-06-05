@@ -24,6 +24,10 @@ class Person extends JsonLD {
 	var $address = array();
 	var $gender = "U";
 	var $parents = array();
+	/**
+	 * A gedcom image record (not done yet).
+	 * @var Image $image
+	 */
 	var $image;
 
 	function __construct($addContext = FALSE) {

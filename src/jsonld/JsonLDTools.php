@@ -16,59 +16,107 @@
 use WT\Log;
 
 class JsonLDTools {
+	/**
+	 * Serialize an object into json. Empty values are stripped 
+	 * by unsetting the fields.
+	 * @param unknown $jsonldobject
+	 * @return Object the uncluttered object, no null values.
+	 */
 	public static function jsonize($jsonldobject) {
 		/* create a new object, so we don't modify the original one. */
 		$returnobj = clone $jsonldobject;
-	
-		/* test each key/value for array. If so, recursion… */
-// 		foreach (get_object_vars($returnobj) as $key => $value) {
-// 			if (empty($value)) {
-// 				Log::addDebugLog("$key is empty");
-// 				continue;
-// 			}
-
-// 			Log::addDebugLog("Check if $key contains an array.");
-// 			if (is_array($value)) {
-// 				Log::addDebugLog("$key contains array, jsonizing.");
-// // 				$value = static::jsonize_array($value);
-// 			}
-	
-// 			/* filter empty objects */
-// 			Log::addDebugLog("inner unclutter $value");
-// 			$value = (object) array_filter((array) $value);
-// 		}
+		
+		$returnobj = static::empty_object($returnobj);
 	
 		/* strip empty key/value-pairs */
 		Log::addDebugLog("outer unclutter " . serialize($returnobj));
 		$returnobj = (object) array_filter((array) $returnobj);
 		
-		return json_encode($returnobj, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+		return $returnobj;
 	}
 	
-	private function jsonize_array($array) {
-		foreach ($array as &$value) {
-			Log::addDebugLog("Jsonizing $value");
-			$value = jsonize($value);
+	/**
+	 * Unset empty fields from object.
+	 * @param Object $obj
+	 */
+	private static function empty_object($obj) {
+		// TODO: if array, recursion for each array element…
+		// then return the array;
+		
+		$returnobj = clone $obj;
+		
+		foreach (get_object_vars($returnobj) as $key => $value) {
+			if (is_object($value)) {
+				static::empty_object($returnobj->$key);
+			}
+			
+			if (empty($value)) {
+				unset($returnobj->{$key});
+			}
+			
 		}
 		
-		return $array;
+		return $returnobj;
 	}
 	
+	/**
+	 * For a given person object (re-)set the fields with sane 
+	 * values from a gedcom-record.
+	 * @var Person $person
+	 * @var GedcomRecord $record
+	 */
 	public static function fillPersonFromRecord($person, $record) {
-		$person->name =  $record->getAllNames()[$record->getPrimaryName()]['full'];
+		// TODO: strip html
+		$person->name =  $record->getAllNames()[$record->getPrimaryName()]['fullNN'];
 		$person->media = $record->findHighlightedMedia();
 		$person->gender = $record->getSex();
 		
 		/* Dates */
+		// XXX: match beginning and end of string
 		$birthdate = $record->getBirthDate()->display(false, '%Y-%m-%d', false);
 		if (preg_match('/[0-9]{4}-[0-9]{2}-[0-9]{2}/', $birthdate) === 1) {
-			$person->birthDate = $birthdate;
+			$person->birthDate = strip_tags($birthdate);
+		} else if (preg_match('/between/', $birthdate)) {
+			$person->birthDate = strip_tags($record->getBirthDate()->MinDate()->format('%Y') . 
+				'/' . $record->getBirthDate()->MaxDate()->format('%Y'));
 		}
+		
 		$deathDate = $record->getDeathDate()->display(false, '%Y-%m-%d', false);
 		if (preg_match('/[0-9]{4}-[0-9][0-9]-[0-9][0-9]/', $deathDate) === 1) {
-			$person->deathDate = $deathDate;
+			$person->deathDate = strip_tags($deathDate);
+		} else if (preg_match('/between/', $deathDate)) {
+			$person->deathDate = strip_tags($record->getDeathDate()->MinDate()->format('%Y') . 
+				'/' . $record->getDeathDate()->MaxDate());
 		}
+		
+		/*
+		 * TODO: Add thumbnail, add image, address etc.
+		 */ 
 		
 		return $person;
 	}
+	
+	/**
+	 * Adds parents to a person, taken from the supplied record.
+	 * @var Person $person
+	 * @var GedcomRecord $record
+	 */
+	public static function addParentsFromRecord($person, $record) {
+		$parentFamily = $record->getPrimaryChildFamily();
+		if (!$parentFamily) {
+			/* No family, no parents to be added */ 
+			return $person;
+		}
+		
+		$husband = new Person();
+		$husband = static::fillPersonFromRecord($husband, $parentFamily->getHusband());
+		array_push($person->parents, $husband);
+		
+		$wife = new Person();
+		$wife = static::fillPersonFromRecord($wife, $parentFamily->getWife());
+		array_push($person->parents, $wife);
+		
+		return $person;
+	}
+	
 }

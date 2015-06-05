@@ -1,0 +1,5 @@
+{
+    "require": {
+        "fisharebest/webtrees": "1.6.*"
+    }
+}
