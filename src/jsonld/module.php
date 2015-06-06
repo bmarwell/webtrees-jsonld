@@ -74,6 +74,7 @@ class jsonld_WT_Module extends WT_Module implements WT_Module_Tab {
 		
 		
 		global $controller;
+		// FIXME: record may be invisible!
 		$person = JsonLDTools::fillPersonFromRecord($person, $controller->record);
 		$person = JsonLDTools::addParentsFromRecord($person, $controller->record);
 		
