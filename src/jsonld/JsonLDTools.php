@@ -57,7 +57,7 @@ class JsonLDTools {
 			}
 			
 			return $newarray;
-		} else if (is_string($obj)) {
+		} else if (is_string($obj) || (is_int($obj))) {
 			/* this is just fine */
 			return $obj;
 		}
@@ -89,9 +89,7 @@ class JsonLDTools {
 	 * @var WT_GedcomRecord $record
 	 */
 	public static function fillPersonFromRecord($person, $record) {
-		// TODO: strip html
 		$person->name =  $record->getAllNames()[$record->getPrimaryName()]['fullNN'];
-		$person->media = $record->findHighlightedMedia();
 		$person->gender = $record->getSex();
 		
 		/* Dates */
@@ -112,9 +110,27 @@ class JsonLDTools {
 				'/' . $record->getDeathDate()->MaxDate());
 		}
 		
+		/* add highlighted image */
+		if ($record->findHighlightedMedia()) {
+			$media = $record->findHighlightedMedia(); 
+			$person->image = new ImageObject();
+			$person->image->contentUrl = WT_SERVER_NAME . WT_SCRIPT_PATH . $media->getHtmlUrlDirect();
+			$person->image->name = $media->getAllNames()[$media->getPrimaryName()]['fullNN'];
+			// [0]=width [1]=height [2]=filetype ['mime']=mimetype
+			$person->image->width = $media->getImageAttributes()[0];
+			$person->image->height = $media->getImageAttributes()[1];
+			$person->image->description = strip_tags($media->getFullName());
+			$person->image->thumbnailUrl = WT_SERVER_NAME . WT_SCRIPT_PATH . $media->getHtmlUrlDirect('thumb');
+			
+			$person->image->thumbnail = new ImageObject();
+			$person->image->thumbnail->contentUrl = WT_SERVER_NAME . WT_SCRIPT_PATH . $media->getHtmlUrlDirect('thumb');
+			$person->image->thumbnail->width = $media->getImageAttributes('thumb')[0];
+			$person->image->thumbnail->height = $media->getImageAttributes('thumb')[1];
+		}
+		
 		/*
-		 * TODO: Add thumbnail, add image, address etc.
-		 */ 
+		 * TODO: Add address, places, relatives, etc.
+		 */
 		
 		return $person;
 	}
