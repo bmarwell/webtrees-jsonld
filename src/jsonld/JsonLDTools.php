@@ -61,11 +61,11 @@ class JsonLDTools {
 			/* this is just fine */
 			return $obj;
 		}
-		
 		$returnobj = clone $obj;
 		
 		foreach (get_object_vars($returnobj) as $key => $value) {
 			if (is_object($value)) {
+				static::empty_object($returnobj->$key);
 				$value = static::empty_object($returnobj->$key);
 			}
 			
