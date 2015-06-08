@@ -66,11 +66,6 @@ class jsonld_WT_Module extends WT_Module implements WT_Module_Tab {
 	 * @return string
 	*/
 	public function getTabContent() {
-		ini_set("display_errors", "1");
-		error_reporting(E_ALL);
-		$jsonld = "";
-		
-		Log::addDebugLog("creating person");
 		$person = new Person(true);
 		
 		
