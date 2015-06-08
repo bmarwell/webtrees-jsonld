@@ -25,11 +25,19 @@ and paste the url of any public individual.
 You should also see a new tab on individuals, containing the hidden source code and also 
 the human-readable version inside a html pre-tag.
 
-### Links
+If you use curl, you can do sth. like this:
+```shell
+curl -so - "http://​path.to/​webtrees/​individual.​php?​pid=I1&​ged=AllGED" | \
+    xmllint --html --xpath "//​script[@​id='json-​ld-​data']/​text()" - 2>/dev/null | \
+    jq -C '.​'
+```
 
+### Links
 * Forum discussion: [Webtrees: Schema.org](http://www.webtrees.net/index.php/en/forum/2-open-discussion/27014-schema-org).
 * The parent project’s website is [webtrees.net](http://webtrees.net).
-* German Description (TBD).
+* German Description: [Webtrees-Module](https://www.bmarwell.de/projekte/webtrees-module/).
+* Examples on how to parse with curl (German): [Webtrees-Plugin: json-ld](https://blog.bmarwell.de/webtrees-plugin-json-ld/).
+* Google's testing tool: [Structured Data Testing Tool](https://developers.google.com/structured-data/testing-tool/).
 
 ### License
 webtrees json-ld: online genealogy json-ld-module.

@@ -15,7 +15,7 @@
  */
 
 
-class Place extends JsonLD {
+class jsonld_Place extends JsonLD {
 	/**
 	 * Name of the place
 	 * @var String the name of the place.
