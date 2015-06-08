@@ -22,6 +22,12 @@ use WT\Log;
 class Person extends JsonLD {
 	public $name;
 	public $birthDate;
+	
+	/**
+	 * BirthPlace
+	 * @var Place;
+	 */
+	public $birthPlace;
 	public $email;
 	public $url;
 	public $address = array();

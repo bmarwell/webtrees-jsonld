@@ -62,7 +62,6 @@ class JsonLDTools {
 			return $obj;
 		}
 		
-		echo get_class($obj);
 		$returnobj = clone $obj;
 		
 		foreach (get_object_vars($returnobj) as $key => $value) {
@@ -90,6 +89,11 @@ class JsonLDTools {
 	 * @var WT_GedcomRecord $record
 	 */
 	public static function fillPersonFromRecord($person, $record) {
+		/* check if record exists */
+		if (empty($record)) {
+			return null;
+		}
+		
 		$person->name =  $record->getAllNames()[$record->getPrimaryName()]['fullNN'];
 		$person->gender = $record->getSex();
 		
@@ -113,20 +117,8 @@ class JsonLDTools {
 		
 		/* add highlighted image */
 		if ($record->findHighlightedMedia()) {
-			$media = $record->findHighlightedMedia(); 
-			$person->image = new ImageObject();
-			$person->image->contentUrl = WT_SERVER_NAME . WT_SCRIPT_PATH . $media->getHtmlUrlDirect();
-			$person->image->name = $media->getAllNames()[$media->getPrimaryName()]['fullNN'];
-			// [0]=width [1]=height [2]=filetype ['mime']=mimetype
-			$person->image->width = $media->getImageAttributes()[0];
-			$person->image->height = $media->getImageAttributes()[1];
-			$person->image->description = strip_tags($media->getFullName());
-			$person->image->thumbnailUrl = WT_SERVER_NAME . WT_SCRIPT_PATH . $media->getHtmlUrlDirect('thumb');
-			
-			$person->image->thumbnail = new ImageObject();
-			$person->image->thumbnail->contentUrl = WT_SERVER_NAME . WT_SCRIPT_PATH . $media->getHtmlUrlDirect('thumb');
-			$person->image->thumbnail->width = $media->getImageAttributes('thumb')[0];
-			$person->image->thumbnail->height = $media->getImageAttributes('thumb')[1];
+			$person->media = static::createMediaObject($record->findHighlightedMedia());
+			$person->media = static::empty_object($person->media);
 		}
 		
 		/*
@@ -134,6 +126,29 @@ class JsonLDTools {
 		 */
 		
 		return $person;
+	}
+	
+	private static function createMediaObject($media) {
+		$imageObject = new ImageObject();
+		
+		if (empty($media)) {
+			return $imageObject;
+		}
+		
+		$imageObject->contentUrl = WT_SERVER_NAME . WT_SCRIPT_PATH . $media->getHtmlUrlDirect();
+		$imageObject->name = $media->getAllNames()[$media->getPrimaryName()]['fullNN'];
+		// [0]=width [1]=height [2]=filetype ['mime']=mimetype
+		$imageObject->width = $media->getImageAttributes()[0];
+		$imageObject->height = $media->getImageAttributes()[1];
+		$imageObject->description = strip_tags($media->getFullName());
+		$imageObject->thumbnailUrl = WT_SERVER_NAME . WT_SCRIPT_PATH . $media->getHtmlUrlDirect('thumb');
+			
+		$imageObject->thumbnail = new ImageObject();
+		$imageObject->thumbnail->contentUrl = WT_SERVER_NAME . WT_SCRIPT_PATH . $media->getHtmlUrlDirect('thumb');
+		$imageObject->thumbnail->width = $media->getImageAttributes('thumb')[0];
+		$imageObject->thumbnail->height = $media->getImageAttributes('thumb')[1];
+		
+		return $imageObject;
 	}
 	
 	/**
@@ -149,13 +164,17 @@ class JsonLDTools {
 			return $person;
 		}
 		
-		$husband = new Person();
-		$husband = static::fillPersonFromRecord($husband, $parentFamily->getHusband());
-		$person->addParent($husband);
+		if ($parentFamily->getHusband()) {
+			$husband = new Person();
+			$husband = static::fillPersonFromRecord($husband, $parentFamily->getHusband());
+			$person->addParent($husband);
+		}
 		
-		$wife = new Person();
-		$wife = static::fillPersonFromRecord($wife, $parentFamily->getWife());
-		$person->addParent($wife);
+		if ($parentFamily->getWife()) {
+			$wife = new Person();
+			$wife = static::fillPersonFromRecord($wife, $parentFamily->getWife());
+			$person->addParent($wife);
+		}
 		
 		return $person;
 	}
