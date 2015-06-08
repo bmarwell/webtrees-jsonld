@@ -22,6 +22,7 @@ abstract class JsonLD {
 		Log::addDebugLog("creating jsonld-object");
 		$context = "@context";
 		$type = "@type";
+		$id = "@id";
 		
 		if ($addContext === true) {
 			Log::addDebugLog("adding context…");
@@ -29,5 +30,17 @@ abstract class JsonLD {
 		}
 		
 		$this->$type = $jsonldtype;
+		$this->$id = null;
+	}
+	
+	/**
+	 * Setter for @id. Sadly, schema.org and json-ld do require an @id-field,
+	 * but php of course doesn't allow this directly. You can still do set the
+	 * variable name to a variable and then double-reference it, what happens just here.
+	 * @param String $newId a new identifier (URI, etc.).
+	 */
+	public function setId($newId) {
+		$id = "@id";
+		$this->$id = $newId;
 	}
 }

@@ -16,9 +16,9 @@
 
 
 class Address extends JsonLD {
-	var $streetAddress;
-	var $postalCode;
-	var $addressLocality;
+	public $streetAddress;
+	public $postalCode;
+	public $addressLocality;
 
 	function __construct($addContext = FALSE) {
 		parent::__construct("PostalAddress", $addContext);

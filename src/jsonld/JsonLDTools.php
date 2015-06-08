@@ -142,6 +142,7 @@ class JsonLDTools {
 	 * @var WT_GedcomRecord $record the person's gedcom record.
 	 */
 	public static function addParentsFromRecord($person, $record) {
+		// FIXME: Record may be invisible!
 		$parentFamily = $record->getPrimaryChildFamily();
 		if (!$parentFamily) {
 			/* No family, no parents to be added */ 
