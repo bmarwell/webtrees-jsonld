@@ -41,10 +41,10 @@ class Person extends JsonLD {
 	public $gender = "U";
 	public $parents = array();
 	/**
-	 * A gedcom image record (not done yet).
+	 * A gedcom imageObject record.
 	 * @var Image $image
 	 */
-	public $image;
+	public $media;
 
 	function __construct($addContext = FALSE) {
 		Log::addDebugLog("creating person, context is $addContext");
