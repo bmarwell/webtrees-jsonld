@@ -20,18 +20,31 @@ use WT\Log;
  * Person for serializing into json-ld. Vars have name from schema.org.
  */
 class Person extends JsonLD {
-	var $name;
-	var $birthDate;
-	var $email;
-	var $url;
-	var $address = array();
-	var $gender = "U";
-	var $parents = array();
+	public $name;
+	public $birthDate;
+	
+	/**
+	 * BirthPlace
+	 * @var Place;
+	 */
+	public $birthPlace;
+	
+	/**
+	 * Place of Death
+	 * @var Place
+	 */
+	public $deathPlace;
+	
+	public $email;
+	public $url;
+	public $address = array();
+	public $gender = "U";
+	public $parents = array();
 	/**
 	 * A gedcom image record (not done yet).
 	 * @var Image $image
 	 */
-	var $image;
+	public $image;
 
 	function __construct($addContext = FALSE) {
 		Log::addDebugLog("creating person, context is $addContext");

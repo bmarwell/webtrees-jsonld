@@ -15,12 +15,26 @@
  */
 
 
-class Address extends JsonLD {
-	var $streetAddress;
-	var $postalCode;
-	var $addressLocality;
+class Place extends JsonLD {
+	/**
+	 * Name of the place
+	 * @var String the name of the place.
+	 */
+	public $name;
 
+	/**
+	 * Geo-Location of the place
+	 * @var GeoLocation the geoLocation.
+	 */
+	public $geo;
+	
+	/**
+	 * The address of this place.
+	 * @var Address the address.
+	 */
+	public $address;
+	
 	function __construct($addContext = FALSE) {
-		parent::__construct("PostalAddress", $addContext);
+		parent::__construct("Place", $addContext);
 	}
 }

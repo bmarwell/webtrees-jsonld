@@ -44,15 +44,33 @@ class JsonLDTools {
 	 * Unset empty fields from object.
 	 * @param Object $obj
 	 */
-	private static function empty_object($obj) {
-		// TODO: if array, recursion for each array element…
-		// then return the array;
+	private static function empty_object(&$obj) {
+		
+		if (is_array($obj)) {
+			/* 
+			 * arrays cannot be modified this easily,
+			 * a new one is passed for readability.
+			 */
+			$newarray = array();
+			foreach ($obj as $key => $value) {
+				array_push($newarray, static::empty_object($value));
+			}
+			
+			return $newarray;
+		} else if (is_string($obj) || (is_int($obj))) {
+			/* this is just fine */
+			return $obj;
+		}
 		
 		$returnobj = clone $obj;
 		
 		foreach (get_object_vars($returnobj) as $key => $value) {
 			if (is_object($value)) {
-				static::empty_object($returnobj->$key);
+				$value = static::empty_object($returnobj->$key);
+			}
+			
+			if (is_array($value)) {
+				$returnobj->$key = static::empty_object($returnobj->$key);
 			}
 			
 			if (empty($value)) {
@@ -71,10 +89,14 @@ class JsonLDTools {
 	 * @var WT_GedcomRecord $record
 	 */
 	public static function fillPersonFromRecord($person, $record) {
-		// TODO: strip html
+		/* check if record exists */
+		if (empty($record)) {
+			return null;
+		}
+		
 		$person->name =  $record->getAllNames()[$record->getPrimaryName()]['fullNN'];
-		$person->media = $record->findHighlightedMedia();
 		$person->gender = $record->getSex();
+		$person->setId($record->getAbsoluteLinkUrl());
 		
 		/* Dates */
 		// XXX: match beginning and end of string, doesn't seem to work.
@@ -94,11 +116,59 @@ class JsonLDTools {
 				'/' . $record->getDeathDate()->MaxDate());
 		}
 		
+		/* add highlighted image */
+		if ($record->findHighlightedMedia()) {
+			$person->media = static::createMediaObject($record->findHighlightedMedia());
+			$person->media = static::empty_object($person->media);
+		}
+		
+		// TODO: Get place object.
+		if ($record->getBirthPlace()) {
+			$person->birthPlace = new Place();
+			$person->birthPlace->name = $record->getBirthPlace();
+			$person->birthPlace->setId($record->getBirthPlace());
+			$person->birthPlace = static::empty_object($person->birthPlace);
+		}
+		
+		if ($record->getDeathPlace()) {
+			$person->deathPlace = new Place();
+			$person->deathPlace->name = $record->getDeathPlace();
+			$person->deathPlace->setId($record->getDeathPlace());
+			$person->deathPlace = static::empty_object($person->deathPlace);
+		}
+		
 		/*
-		 * TODO: Add thumbnail, add image, address etc.
-		 */ 
+		 * TODO: Add, etc.
+		 */
 		
 		return $person;
+	}
+	
+	private static function createMediaObject($media) {
+		$imageObject = new ImageObject();
+		
+		if (empty($media)) {
+			return $imageObject;
+		}
+		
+		$imageObject->contentUrl = WT_SERVER_NAME . WT_SCRIPT_PATH . $media->getHtmlUrlDirect();
+		$imageObject->name = $media->getAllNames()[$media->getPrimaryName()]['fullNN'];
+		// [0]=width [1]=height [2]=filetype ['mime']=mimetype
+		$imageObject->width = $media->getImageAttributes()[0];
+		$imageObject->height = $media->getImageAttributes()[1];
+		$imageObject->description = strip_tags($media->getFullName());
+		$imageObject->thumbnailUrl = WT_SERVER_NAME . WT_SCRIPT_PATH . $media->getHtmlUrlDirect('thumb');
+		$imageObject->setId($media->getAbsoluteLinkUrl());
+			
+		$imageObject->thumbnail = new ImageObject();
+		$imageObject->thumbnail->contentUrl = WT_SERVER_NAME . WT_SCRIPT_PATH . $media->getHtmlUrlDirect('thumb');
+		$imageObject->thumbnail->width = $media->getImageAttributes('thumb')[0];
+		$imageObject->thumbnail->height = $media->getImageAttributes('thumb')[1];
+		$imageObject->thumbnail->setId($media->getAbsoluteLinkUrl());
+		
+		$imageObject->thumbnail = static::empty_object($imageObject->thumbnail);
+		
+		return $imageObject;
 	}
 	
 	/**
@@ -107,19 +177,32 @@ class JsonLDTools {
 	 * @var WT_GedcomRecord $record the person's gedcom record.
 	 */
 	public static function addParentsFromRecord($person, $record) {
+		if (empty($record)) {
+			return null;
+		}
+		
+		if (empty($record->getPrimaryChildFamily())) {
+			return null;
+		}
+		
 		$parentFamily = $record->getPrimaryChildFamily();
+		
 		if (!$parentFamily) {
 			/* No family, no parents to be added */ 
 			return $person;
 		}
 		
-		$husband = new Person();
-		$husband = static::fillPersonFromRecord($husband, $parentFamily->getHusband());
-		$person->addParent($husband);
+		if ($parentFamily->getHusband()) {
+			$husband = new Person();
+			$husband = static::fillPersonFromRecord($husband, $parentFamily->getHusband());
+			$person->addParent($husband);
+		}
 		
-		$wife = new Person();
-		$wife = static::fillPersonFromRecord($wife, $parentFamily->getWife());
-		$person->addParent($wife);
+		if ($parentFamily->getWife()) {
+			$wife = new Person();
+			$wife = static::fillPersonFromRecord($wife, $parentFamily->getWife());
+			$person->addParent($wife);
+		}
 		
 		return $person;
 	}

@@ -19,6 +19,7 @@ include_once WT_MODULES_DIR.'jsonld/JsonLD.php';
 include_once WT_MODULES_DIR.'jsonld/Person.php';
 include_once WT_MODULES_DIR.'jsonld/Address.php';
 include_once WT_MODULES_DIR.'jsonld/JsonLDTools.php';
+include_once WT_MODULES_DIR.'jsonld/ImageObject.php';
 
 /**
  * Class implementing application/ld+json output.
@@ -74,6 +75,7 @@ class jsonld_WT_Module extends WT_Module implements WT_Module_Tab {
 		
 		
 		global $controller;
+		// FIXME: record may be invisible!
 		$person = JsonLDTools::fillPersonFromRecord($person, $controller->record);
 		$person = JsonLDTools::addParentsFromRecord($person, $controller->record);
 		
