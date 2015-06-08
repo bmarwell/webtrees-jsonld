@@ -28,7 +28,9 @@ class JsonLDTools {
 	 * @return Object the uncluttered object, no null values.
 	 */
 	public static function jsonize($jsonldobject) {
-		// FIXME: Possible fatal error because we did not check for object.
+		if (empty($jsonldobject) || (!is_object($jsonldobject))) {
+			return new Person(true);
+		}
 		/* create a new object, so we don't modify the original one. */
 		$returnobj = clone $jsonldobject;
 		
