@@ -92,7 +92,7 @@ class JsonLDTools {
 	public static function fillPersonFromRecord($person, $record) {
 		/* check if record exists */
 		if (empty($record)) {
-			return null;
+			return $person;
 		}
 		
 		$person->name =  $record->getAllNames()[$record->getPrimaryName()]['fullNN'];
@@ -179,11 +179,11 @@ class JsonLDTools {
 	 */
 	public static function addParentsFromRecord($person, $record) {
 		if (empty($record)) {
-			return null;
+			return $person;
 		}
 		
 		if (empty($record->getPrimaryChildFamily())) {
-			return null;
+			return $person;
 		}
 		
 		$parentFamily = $record->getPrimaryChildFamily();
