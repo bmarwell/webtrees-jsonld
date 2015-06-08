@@ -19,6 +19,7 @@ include_once WT_MODULES_DIR.'jsonld/JsonLD.php';
 include_once WT_MODULES_DIR.'jsonld/Person.php';
 include_once WT_MODULES_DIR.'jsonld/Address.php';
 include_once WT_MODULES_DIR.'jsonld/JsonLDTools.php';
+include_once WT_MODULES_DIR.'jsonld/jsonld_Place.php';
 include_once WT_MODULES_DIR.'jsonld/ImageObject.php';
 
 /**
