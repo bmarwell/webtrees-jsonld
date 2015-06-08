@@ -78,7 +78,6 @@ class JsonLDTools {
 			if (empty($value)) {
 				unset($returnobj->{$key});
 			}
-			
 		}
 		
 		return $returnobj;
@@ -142,8 +141,6 @@ class JsonLDTools {
 		/*
 		 * TODO: Add, etc.
 		 */
-		
-		$person = static::empty_object($person);;
 		
 		return $person;
 	}
