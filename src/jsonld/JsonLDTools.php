@@ -124,14 +124,14 @@ class JsonLDTools {
 		
 		// TODO: Get place object.
 		if ($record->getBirthPlace()) {
-			$person->birthPlace = new Place();
+			$person->birthPlace = new jsonld_Place();
 			$person->birthPlace->name = $record->getBirthPlace();
 			$person->birthPlace->setId($record->getBirthPlace());
 			$person->birthPlace = static::empty_object($person->birthPlace);
 		}
 		
 		if ($record->getDeathPlace()) {
-			$person->deathPlace = new Place();
+			$person->deathPlace = new jsonld_Place();
 			$person->deathPlace->name = $record->getDeathPlace();
 			$person->deathPlace->setId($record->getDeathPlace());
 			$person->deathPlace = static::empty_object($person->deathPlace);
