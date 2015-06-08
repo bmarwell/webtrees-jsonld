@@ -66,13 +66,14 @@ class jsonld_WT_Module extends WT_Module implements WT_Module_Tab {
 	 * @return string
 	*/
 	public function getTabContent() {
-		$person = new Person(true);
-		
-		
 		global $controller;
+		
+		$person = new Person(true);
+		$record = $controller->getSignificantIndividual();
+		
 		// FIXME: record may be invisible!
-		$person = JsonLDTools::fillPersonFromRecord($person, $controller->record);
-		$person = JsonLDTools::addParentsFromRecord($person, $controller->record);
+		$person = JsonLDTools::fillPersonFromRecord($person, $record);
+		$person = JsonLDTools::addParentsFromRecord($person, $record);
 		
 		$jsonld = json_encode(
 				JsonLDTools::jsonize($person), 
