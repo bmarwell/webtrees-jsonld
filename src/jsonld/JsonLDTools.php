@@ -96,6 +96,7 @@ class JsonLDTools {
 		
 		$person->name =  $record->getAllNames()[$record->getPrimaryName()]['fullNN'];
 		$person->gender = $record->getSex();
+		$person->setId($record->getAbsoluteLinkUrl());
 		
 		/* Dates */
 		// XXX: match beginning and end of string, doesn't seem to work.
@@ -142,11 +143,15 @@ class JsonLDTools {
 		$imageObject->height = $media->getImageAttributes()[1];
 		$imageObject->description = strip_tags($media->getFullName());
 		$imageObject->thumbnailUrl = WT_SERVER_NAME . WT_SCRIPT_PATH . $media->getHtmlUrlDirect('thumb');
+		$imageObject->setId($media->getAbsoluteLinkUrl());
 			
 		$imageObject->thumbnail = new ImageObject();
 		$imageObject->thumbnail->contentUrl = WT_SERVER_NAME . WT_SCRIPT_PATH . $media->getHtmlUrlDirect('thumb');
 		$imageObject->thumbnail->width = $media->getImageAttributes('thumb')[0];
 		$imageObject->thumbnail->height = $media->getImageAttributes('thumb')[1];
+		$imageObject->thumbnail->setId($media->getAbsoluteLinkUrl());
+		
+		$imageObject->thumbnail = static::empty_object($imageObject->thumbnail);
 		
 		return $imageObject;
 	}
