@@ -122,8 +122,23 @@ class JsonLDTools {
 			$person->media = static::empty_object($person->media);
 		}
 		
+		// TODO: Get place object.
+		if ($record->getBirthPlace()) {
+			$person->birthPlace = new Place();
+			$person->birthPlace->name = $record->getBirthPlace();
+			$person->birthPlace->setId($record->getBirthPlace());
+			$person->birthPlace = static::empty_object($person->birthPlace);
+		}
+		
+		if ($record->getDeathPlace()) {
+			$person->deathPlace = new Place();
+			$person->deathPlace->name = $record->getDeathPlace();
+			$person->deathPlace->setId($record->getDeathPlace());
+			$person->deathPlace = static::empty_object($person->deathPlace);
+		}
+		
 		/*
-		 * TODO: Add address, places, relatives, etc.
+		 * TODO: Add, etc.
 		 */
 		
 		return $person;

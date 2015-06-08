@@ -28,6 +28,13 @@ class Person extends JsonLD {
 	 * @var Place;
 	 */
 	public $birthPlace;
+	
+	/**
+	 * Place of Death
+	 * @var Place
+	 */
+	public $deathPlace;
+	
 	public $email;
 	public $url;
 	public $address = array();
