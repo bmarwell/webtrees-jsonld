@@ -1,7 +1,7 @@
 <?php
 /**
  * webtrees json-ld: online genealogy json-ld-module.
- * Copyright (C) 2015 Benjamin
+ * Copyright (C) 2015 webtrees development team
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
