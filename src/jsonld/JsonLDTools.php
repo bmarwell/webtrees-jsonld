@@ -96,6 +96,9 @@ class JsonLDTools {
 		}
 		
 		$person->name =  $record->getAllNames()[$record->getPrimaryName()]['fullNN'];
+		$person->givenName =  $record->getAllNames()[$record->getPrimaryName()]['givn'];
+		$person->familyName =  $record->getAllNames()[$record->getPrimaryName()]['surn'];
+// 		$person->familyName =  $record->getAllNames()[$record->getPrimaryName()]['surname'];
 		$person->gender = $record->getSex();
 		$person->setId($record->getAbsoluteLinkUrl());
 		
@@ -139,7 +142,7 @@ class JsonLDTools {
 		}
 		
 		/*
-		 * TODO: Add family name, given name, spouse, etc.
+		 * TODO: Add spouse, etc.
 		 */
 		
 		return $person;

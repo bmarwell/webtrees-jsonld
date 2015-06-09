@@ -21,6 +21,19 @@ use WT\Log;
  */
 class Person extends JsonLD {
 	public $name;
+	
+	/**
+	 * First name, personal name, forename, christian name. 
+	 * Middle names should go to additionalName.
+	 * @var String
+	 */
+	public $givenName;
+	
+	/**
+	 * Last name of this person.
+	 * @var String the last name or family name.
+	 */
+	public $familyName;
 	public $birthDate;
 	
 	/**
