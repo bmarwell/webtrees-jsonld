@@ -139,7 +139,7 @@ class JsonLDTools {
 		}
 		
 		/*
-		 * TODO: Add, etc.
+		 * TODO: Add family name, given name, spouse, etc.
 		 */
 		
 		return $person;
@@ -203,6 +203,32 @@ class JsonLDTools {
 			$wife = new Person();
 			$wife = static::fillPersonFromRecord($wife, $parentFamily->getWife());
 			$person->addParent($wife);
+		}
+		
+		return $person;
+	}
+	
+	public static function addChildrenFromRecord($person, $record) {
+		if (empty($record)) {
+			return $person;
+		}
+		
+		if (empty($record->getSpouseFamilies())) {
+			return $person;
+		}
+		
+		$children = array();
+		/* we need a unique array first */
+		foreach ($record->getSpouseFamilies() as $fam) {
+			foreach ($fam->getChildren() as $child) {
+				$children[$child->getXref()] = $child;
+			}
+		}
+		
+		foreach ($children as $child) {
+			$childPerson = new Person();
+			$childPerson = static::fillPersonFromRecord($childPerson, $child);
+			$person->addChild($childPerson);
 		}
 		
 		return $person;
