@@ -1,7 +1,7 @@
 <?php
 /**
  * webtrees json-ld: online genealogy json-ld-module.
- * Copyright (C) 2015 Benjamin
+ * Copyright (C) 2015 webtrees development team
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -21,6 +21,19 @@ use WT\Log;
  */
 class Person extends JsonLD {
 	public $name;
+	
+	/**
+	 * First name, personal name, forename, christian name. 
+	 * Middle names should go to additionalName.
+	 * @var String
+	 */
+	public $givenName;
+	
+	/**
+	 * Last name of this person.
+	 * @var String the last name or family name.
+	 */
+	public $familyName;
 	public $birthDate;
 	
 	/**
@@ -40,6 +53,12 @@ class Person extends JsonLD {
 	public $address = array();
 	public $gender = "U";
 	public $parents = array();
+	
+	/**
+	 * The children of this person.
+	 * @var Person[] the children, regardless of their families.
+	 */
+	public $children = array();
 	/**
 	 * A gedcom imageObject record.
 	 * @var Image $image
@@ -55,7 +74,11 @@ class Person extends JsonLD {
 		array_push($this->address, $address);
 	}
 	
-	function addParent($person) {
-		array_push($this->parents, $person);
+	function addParent($parent) {
+		array_push($this->parents, $parent);
+	}
+	
+	function addChild($child) {
+		array_push($this->children, $child);
 	}
 }

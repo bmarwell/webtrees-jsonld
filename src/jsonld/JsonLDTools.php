@@ -1,7 +1,7 @@
 <?php
 /**
  * webtrees json-ld: online genealogy json-ld-module.
- * Copyright (C) 2015 Benjamin
+ * Copyright (C) 2015 webtrees development team
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -92,10 +92,13 @@ class JsonLDTools {
 	public static function fillPersonFromRecord($person, $record) {
 		/* check if record exists */
 		if (empty($record)) {
-			return null;
+			return $person;
 		}
 		
 		$person->name =  $record->getAllNames()[$record->getPrimaryName()]['fullNN'];
+		$person->givenName =  $record->getAllNames()[$record->getPrimaryName()]['givn'];
+		$person->familyName =  $record->getAllNames()[$record->getPrimaryName()]['surn'];
+// 		$person->familyName =  $record->getAllNames()[$record->getPrimaryName()]['surname'];
 		$person->gender = $record->getSex();
 		$person->setId($record->getAbsoluteLinkUrl());
 		
@@ -139,7 +142,7 @@ class JsonLDTools {
 		}
 		
 		/*
-		 * TODO: Add, etc.
+		 * TODO: Add spouse, etc.
 		 */
 		
 		return $person;
@@ -179,11 +182,11 @@ class JsonLDTools {
 	 */
 	public static function addParentsFromRecord($person, $record) {
 		if (empty($record)) {
-			return null;
+			return $person;
 		}
 		
 		if (empty($record->getPrimaryChildFamily())) {
-			return null;
+			return $person;
 		}
 		
 		$parentFamily = $record->getPrimaryChildFamily();
@@ -203,6 +206,32 @@ class JsonLDTools {
 			$wife = new Person();
 			$wife = static::fillPersonFromRecord($wife, $parentFamily->getWife());
 			$person->addParent($wife);
+		}
+		
+		return $person;
+	}
+	
+	public static function addChildrenFromRecord($person, $record) {
+		if (empty($record)) {
+			return $person;
+		}
+		
+		if (empty($record->getSpouseFamilies())) {
+			return $person;
+		}
+		
+		$children = array();
+		/* we need a unique array first */
+		foreach ($record->getSpouseFamilies() as $fam) {
+			foreach ($fam->getChildren() as $child) {
+				$children[$child->getXref()] = $child;
+			}
+		}
+		
+		foreach ($children as $child) {
+			$childPerson = new Person();
+			$childPerson = static::fillPersonFromRecord($childPerson, $child);
+			$person->addChild($childPerson);
 		}
 		
 		return $person;
