@@ -229,6 +229,9 @@ class JsonLDTools {
 		}
 		
 		foreach ($children as $child) {
+			if (!($child->canShow())) {
+				continue;
+			}
 			$childPerson = new Person();
 			$childPerson = static::fillPersonFromRecord($childPerson, $child);
 			$person->addChild($childPerson);
