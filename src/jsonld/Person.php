@@ -40,6 +40,12 @@ class Person extends JsonLD {
 	public $address = array();
 	public $gender = "U";
 	public $parents = array();
+	
+	/**
+	 * The children of this person.
+	 * @var Person[] the children, regardless of their families.
+	 */
+	public $children = array();
 	/**
 	 * A gedcom imageObject record.
 	 * @var Image $image
@@ -55,7 +61,11 @@ class Person extends JsonLD {
 		array_push($this->address, $address);
 	}
 	
-	function addParent($person) {
-		array_push($this->parents, $person);
+	function addParent($parent) {
+		array_push($this->parents, $parent);
+	}
+	
+	function addChild($child) {
+		array_push($this->children, $child);
 	}
 }
