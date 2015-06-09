@@ -122,8 +122,8 @@ class JsonLDTools {
 		
 		/* add highlighted image */
 		if ($record->findHighlightedMedia()) {
-			$person->media = static::createMediaObject($record->findHighlightedMedia());
-			$person->media = static::empty_object($person->media);
+			$person->image = static::createMediaObject($record->findHighlightedMedia());
+			$person->image = static::empty_object($person->image);
 		}
 		
 		// TODO: Get place object.

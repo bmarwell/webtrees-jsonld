@@ -63,7 +63,7 @@ class Person extends JsonLD {
 	 * A gedcom imageObject record.
 	 * @var Image $image
 	 */
-	public $media;
+	public $image;
 
 	function __construct($addContext = FALSE) {
 		Log::addDebugLog("creating person, context is $addContext");
