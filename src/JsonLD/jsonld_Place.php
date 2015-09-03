@@ -2,7 +2,6 @@
 /**
  * webtrees json-ld: online genealogy json-ld-module.
  * Copyright (C) 2015 webtrees development team
- * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -15,58 +14,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace bmarwell\WebtreesModuls\jsonld;
+namespace bmarwell\WebtreesModules\jsonld;
 
-/** 
- * Image object which represents http://schema.org/ImageObject.
- * @author bmarwell@gmail.com
- *
- */
-class ImageObject extends JsonLD {
+class jsonld_Place extends JsonLD {
 	/**
-	 * Actual bytes of the media object.
+	 * Name of the place
+	 * @var String the name of the place.
 	 */
-	var $contentUrl;
+	public $name;
+
+	/**
+	 * Geo-Location of the place
+	 * @var String the geoLocation.
+	 */
+	public $geo;
 	
 	/**
-	 * A name for this image.
-	 * @var String
+	 * The address of this place.
+	 * @var String the address.
 	 */
-	var $name;
+	public $address;
 	
-	/**
-	 * Some words about this image.
-	 * @var String
-	 */
-	var $description;
-	
-	/**
-	 * Width of the image in pixels.
-	 * @var int
-	 */
-	var $width;
-	
-	/**
-	 * Height of the image in pixels.
-	 * @var int
-	 */
-	var $height;
-	
-	/**
-	 * A direct link to a thumbnail image file.
-	 * @var String
-	 */
-	var $thumbnailUrl;
-	
-	/**
-	 * Details on the thumbnail, it is an image object itself.
-	 * @var ImageObject
-	 */
-	var $thumbnail;
-	
-	public function __construct() {
-		parent::__construct("ImageObject");
+	function __construct($addContext = FALSE) {
+		parent::__construct("Place", $addContext);
 	}
-	
-	
 }

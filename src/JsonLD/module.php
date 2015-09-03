@@ -14,7 +14,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace bmarwell\WebtreesModuls\jsonld;
+namespace bmarwell\WebtreesModules\jsonld;
 
 use Composer\Autoload\ClassLoader;
 
@@ -44,9 +44,14 @@ class JsonLdModule extends AbstractModule implements ModuleTabInterface {
 
     public function __construct()
     {
-        parent::__construct('jsonld');
+        parent::__construct('JsonLD');
         $this->directory = WT_MODULES_DIR . $this->getName();
         $this->action = Filter::get('mod_action');
+
+		// register the namespaces
+		$loader = new ClassLoader();
+		$loader->addPsr4('bmarwell\\WebtreesModules\\jsonld\\', $this->directory);
+		$loader->register();
     }
 
 	/* ****************************
