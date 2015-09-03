@@ -13,8 +13,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- 
-use WT\Log;
+
+namespace bmarwell\WebtreesModuls\jsonld;
+
+use Fisharebest\Webtrees\Log;
+use Fisharebest\Webtrees\Place;
 
 /**
  * Person for serializing into json-ld. Vars have name from schema.org.
@@ -61,7 +64,7 @@ class Person extends JsonLD {
 	public $children = array();
 	/**
 	 * A gedcom imageObject record.
-	 * @var Image $image
+	 * @var Object $image
 	 */
 	public $image;
 

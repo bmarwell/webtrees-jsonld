@@ -15,6 +15,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+namespace bmarwell\WebtreesModuls\jsonld;
+
 /** 
  * Image object which represents http://schema.org/ImageObject.
  * @author bmarwell@gmail.com

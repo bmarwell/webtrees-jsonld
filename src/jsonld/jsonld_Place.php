@@ -14,6 +14,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+namespace bmarwell\WebtreesModuls\jsonld;
 
 class jsonld_Place extends JsonLD {
 	/**
@@ -24,13 +25,13 @@ class jsonld_Place extends JsonLD {
 
 	/**
 	 * Geo-Location of the place
-	 * @var GeoLocation the geoLocation.
+	 * @var String the geoLocation.
 	 */
 	public $geo;
 	
 	/**
 	 * The address of this place.
-	 * @var Address the address.
+	 * @var String the address.
 	 */
 	public $address;
 	

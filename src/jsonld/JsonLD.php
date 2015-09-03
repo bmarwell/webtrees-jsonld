@@ -13,8 +13,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- 
-use WT\Log;
+
+namespace bmarwell\WebtreesModuls\jsonld;
+
+use Fisharebest\Webtrees\Log;
 
 abstract class JsonLD {
 	

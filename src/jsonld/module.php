@@ -14,23 +14,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use WT\Log;
-include_once WT_MODULES_DIR.'jsonld/JsonLD.php';
-include_once WT_MODULES_DIR.'jsonld/Person.php';
-include_once WT_MODULES_DIR.'jsonld/JsonLDTools.php';
-include_once WT_MODULES_DIR.'jsonld/jsonld_Place.php';
-include_once WT_MODULES_DIR.'jsonld/ImageObject.php';
+namespace bmarwell\WebtreesModuls\jsonld;
+
+use Composer\Autoload\ClassLoader;
+use Fisharebest\Webtrees\Module\AbstractModule;
+use Fisharebest\Webtrees\Module\ModuleTabInterface;
+use Fisharebest\Webtrees\GedcomRecord;
+use Fisharebest\Webtrees\Auth;
 
 /**
  * Class implementing application/ld+json output.
  * @author bmarwell
  *
  */
-class jsonld_WT_Module extends WT_Module implements WT_Module_Tab {
+class JsonLdModule extends AbstractModule implements ModuleTabInterface {
+	
 	
 	/* ****************************
 	 * Module configuration
 	 * ****************************/
+
 	/** {@inheritdoc} */
 	public function getTitle() {
 		return "JsonLD";
@@ -43,7 +46,7 @@ class jsonld_WT_Module extends WT_Module implements WT_Module_Tab {
 	
 	/** {@inheritdoc} */
 	public function defaultAccessLevel() {
-		return WT_PRIV_PUBLIC;
+		return Auth::PRIV_NONE;
 	}
 	
 	/* ****************************
@@ -67,9 +70,11 @@ class jsonld_WT_Module extends WT_Module implements WT_Module_Tab {
 	*/
 	public function getTabContent() {
 		global $controller;
-		
-		$person = new Person(true);
-		$record = $controller->getSignificantIndividual();
+
+        /** @var Person $person */
+        $person = new Person(true);
+        /** @var GedcomRecord $record */
+        $record = $controller->getSignificantIndividual();
 		
 		// FIXME: record may be invisible!
 		$person = JsonLDTools::fillPersonFromRecord($person, $record);
