@@ -1,5 +1,8 @@
 ## Changelog
 
+### v1.0
+ - Compatiblity with webtrees 1.7.2
+
 ### v0.3
 - Private children will not be added anymore.
 - finally fixed image/media naming problem.

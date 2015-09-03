@@ -19,6 +19,10 @@ or [json-ld.org](http://json-ld.org/).
 1. Copy the folder src/jsonld (only the subfolder) to your webtrees/modules_v3-folder.
 2. Go to the admin menu and modules, then enable the JsonLD-Module.
 
+### Update
+If you have a previous version of JsonLD installed, remove the folder `modules_v3/jsonld`. The new Foldername reflects
+the title (which has capital letters). Otherwise, this plugin will not work!
+
 ### Verification
 To see if it works, open up the [Google Structured Data Testing Tool](https://developers.google.com/structured-data/testing-tool/)
 and paste the url of any public individual.
