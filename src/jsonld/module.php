@@ -17,10 +17,20 @@
 namespace bmarwell\WebtreesModuls\jsonld;
 
 use Composer\Autoload\ClassLoader;
+
 use Fisharebest\Webtrees\Module\AbstractModule;
 use Fisharebest\Webtrees\Module\ModuleTabInterface;
+
 use Fisharebest\Webtrees\GedcomRecord;
+use Fisharebest\Webtrees\Individual;
+use Fisharebest\Webtrees\Family;
+use Fisharebest\Webtrees\Note;
+use Fisharebest\Webtrees\Source;
+use Fisharebest\Webtrees\Repository;
+use Fisharebest\Webtrees\Media;
+
 use Fisharebest\Webtrees\Auth;
+use Fisharebest\Webtrees\Filter;
 
 /**
  * Class implementing application/ld+json output.
@@ -28,17 +38,30 @@ use Fisharebest\Webtrees\Auth;
  *
  */
 class JsonLdModule extends AbstractModule implements ModuleTabInterface {
-	
-	
+
+    /** @var string location of the fancy treeview module files */
+    var $directory;
+
+    public function __construct()
+    {
+        parent::__construct('jsonld');
+        $this->directory = WT_MODULES_DIR . $this->getName();
+        $this->action = Filter::get('mod_action');
+    }
+
 	/* ****************************
 	 * Module configuration
 	 * ****************************/
 
 	/** {@inheritdoc} */
-	public function getTitle() {
+	public function getName() {
 		return "JsonLD";
 	}
-	
+
+    public function getTitle() {
+        return "JsonLD";
+    }
+
 	/** {@inheritdoc} */
 	public function getDescription() {
 		return "Adds json-ld-data to persons as described in schema.org/Person";
@@ -46,7 +69,7 @@ class JsonLdModule extends AbstractModule implements ModuleTabInterface {
 	
 	/** {@inheritdoc} */
 	public function defaultAccessLevel() {
-		return Auth::PRIV_NONE;
+		return Auth::PRIV_PRIVATE;
 	}
 	
 	/* ****************************
@@ -62,6 +85,10 @@ class JsonLdModule extends AbstractModule implements ModuleTabInterface {
 	public function defaultTabOrder() {
 		return 500;
 	}
+
+    public function getTabTitle() {
+        return "JsonLD";
+    }
 	
 	/**
 	 * Generate the HTML content of this tab.
@@ -73,7 +100,7 @@ class JsonLdModule extends AbstractModule implements ModuleTabInterface {
 
         /** @var Person $person */
         $person = new Person(true);
-        /** @var GedcomRecord $record */
+        /** @var GedcomRecord|Individual|Family|Source|Repository|Media|Note $record */
         $record = $controller->getSignificantIndividual();
 		
 		// FIXME: record may be invisible!
@@ -107,7 +134,7 @@ class JsonLdModule extends AbstractModule implements ModuleTabInterface {
 		global $controller;
 		
 		return 
-			(sizeof($controller->record->getAllNames()) > 0) /* no names, no cookies */ 
+			(count($controller->record->getAllNames()) > 0) /* no names, no cookies */
 			&& ($controller->record->canShowName());         /* no id */
 	}
 	
@@ -117,7 +144,7 @@ class JsonLdModule extends AbstractModule implements ModuleTabInterface {
 	 * @return bool
 	*/
 	public function canLoadAjax() {
-		return false;
+		return true;
 	}
 	
 	/**
@@ -140,5 +167,7 @@ class JsonLdModule extends AbstractModule implements ModuleTabInterface {
 	public function isGrayedOut() {
 		return false;
 	}
-	
+
 }
+
+return new JsonLdModule();

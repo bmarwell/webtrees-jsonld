@@ -16,7 +16,13 @@
 
 namespace bmarwell\WebtreesModuls\jsonld;
 
-use Fisharebest\Webtrees\Log;
+use Fisharebest\Webtrees\GedcomRecord;
+use Fisharebest\Webtrees\Individual;
+use Fisharebest\Webtrees\Family;
+use Fisharebest\Webtrees\Note;
+use Fisharebest\Webtrees\Source;
+use Fisharebest\Webtrees\Repository;
+use Fisharebest\Webtrees\Media;
 
 /**
  * Various static function used for JsonLD-output.
@@ -28,14 +34,15 @@ class JsonLDTools {
 	 * Serialize an object into json. Empty values are stripped 
 	 * by unsetting the fields.
 	 * @param Person $jsonldobject the person (or any other object) to jsonize.
-	 * @return Object the uncluttered object, no null values.
+	 * @return GedcomRecord|Individual|Family|Source|Repository|Media|Note the uncluttered object, no null values.
 	 */
 	public static function jsonize($jsonldobject) {
 		if (empty($jsonldobject) || (!is_object($jsonldobject))) {
 			return new Person(true);
 		}
 		/* create a new object, so we don't modify the original one. */
-		$returnobj = clone $jsonldobject;
+        /** @var GedcomRecord|Individual|Family|Source|Repository|Media|Note $returnobj */
+        $returnobj = clone $jsonldobject;
 		
 		$returnobj = static::empty_object($returnobj);
 	
@@ -44,11 +51,12 @@ class JsonLDTools {
 		
 		return $returnobj;
 	}
-	
-	/**
-	 * Unset empty fields from object.
-	 * @param Object $obj
-	 */
+
+    /**
+     * Unset empty fields from object.
+     * @param GedcomRecord|Individual|Family|Source|Repository|Media|Note|ImageObject|jsonld_Place $obj
+     * @return ImageObject|Family|GedcomRecord|Individual|Media|Note|Repository|Source|jsonld_Place
+     */
 	private static function empty_object(&$obj) {
 		
 		if (is_array($obj)) {
@@ -85,19 +93,20 @@ class JsonLDTools {
 		
 		return $returnobj;
 	}
-	
-	/**
-	 * For a given person object (re-)set the fields with sane 
-	 * values from a gedcom-record.
-	 * @var Person $person
-	 * @var WT_GedcomRecord $record
-	 */
+
+    /**
+     * For a given person object (re-)set the fields with sane
+     * values from a gedcom-record.
+     * @var Person $person
+     * @var GedcomRecord|Individual|Family|Source|Repository|Media|Note $record
+     * @return Person
+     */
 	public static function fillPersonFromRecord($person, $record) {
 		/* check if record exists */
 		if (empty($record)) {
 			return $person;
 		}
-		
+
 		$person->name =  $record->getAllNames()[$record->getPrimaryName()]['fullNN'];
 		$person->givenName =  $record->getAllNames()[$record->getPrimaryName()]['givn'];
 		$person->familyName =  $record->getAllNames()[$record->getPrimaryName()]['surn'];
@@ -111,16 +120,16 @@ class JsonLDTools {
 		if (preg_match('/[0-9]{4}-[0-9]{2}-[0-9]{2}/', $birthdate) === 1) {
 			$person->birthDate = strip_tags($birthdate);
 		} else if (preg_match('/between/', $birthdate)) {
-			$person->birthDate = strip_tags($record->getBirthDate()->MinDate()->format('%Y') . 
-				'/' . $record->getBirthDate()->MaxDate()->format('%Y'));
+			$person->birthDate = strip_tags($record->getBirthDate()->maximumDate()->format('%Y') .
+				'/' . $record->getBirthDate()->maximumDate()->format('%Y'));
 		}
 		
 		$deathDate = $record->getDeathDate()->display(false, '%Y-%m-%d', false);
 		if (preg_match('/[0-9]{4}-[0-9][0-9]-[0-9][0-9]/', $deathDate) === 1) {
 			$person->deathDate = strip_tags($deathDate);
 		} else if (preg_match('/between/', $deathDate)) {
-			$person->deathDate = strip_tags($record->getDeathDate()->MinDate()->format('%Y') . 
-				'/' . $record->getDeathDate()->MaxDate());
+			$person->deathDate = strip_tags($record->getDeathDate()->maximumDate()->format('%Y') .
+				'/' . $record->getDeathDate()->maximumDate());
 		}
 		
 		/* add highlighted image */
@@ -150,25 +159,29 @@ class JsonLDTools {
 		
 		return $person;
 	}
-	
-	private static function createMediaObject($media) {
+
+    /**
+     * @param Media $media
+     * @return ImageObject
+     */
+    private static function createMediaObject($media) {
 		$imageObject = new ImageObject();
 		
 		if (empty($media)) {
 			return $imageObject;
 		}
 		
-		$imageObject->contentUrl = WT_SERVER_NAME . WT_SCRIPT_PATH . $media->getHtmlUrlDirect();
+		$imageObject->contentUrl = WT_BASE_URL . $media->getHtmlUrlDirect();
 		$imageObject->name = $media->getAllNames()[$media->getPrimaryName()]['fullNN'];
 		// [0]=width [1]=height [2]=filetype ['mime']=mimetype
 		$imageObject->width = $media->getImageAttributes()[0];
 		$imageObject->height = $media->getImageAttributes()[1];
 		$imageObject->description = strip_tags($media->getFullName());
-		$imageObject->thumbnailUrl = WT_SERVER_NAME . WT_SCRIPT_PATH . $media->getHtmlUrlDirect('thumb');
+		$imageObject->thumbnailUrl = WT_BASE_URL . $media->getHtmlUrlDirect('thumb');
 		$imageObject->setId($media->getAbsoluteLinkUrl());
 			
 		$imageObject->thumbnail = new ImageObject();
-		$imageObject->thumbnail->contentUrl = WT_SERVER_NAME . WT_SCRIPT_PATH . $media->getHtmlUrlDirect('thumb');
+		$imageObject->thumbnail->contentUrl = WT_BASE_URL . $media->getHtmlUrlDirect('thumb');
 		$imageObject->thumbnail->width = $media->getImageAttributes('thumb')[0];
 		$imageObject->thumbnail->height = $media->getImageAttributes('thumb')[1];
 		$imageObject->thumbnail->setId($media->getAbsoluteLinkUrl());
@@ -177,12 +190,13 @@ class JsonLDTools {
 		
 		return $imageObject;
 	}
-	
-	/**
-	 * Adds parents to a person, taken from the supplied record.
-	 * @var Person $person the person where parents should be added to.
-	 * @var WT_GedcomRecord $record the person's gedcom record.
-	 */
+
+    /**
+     * Adds parents to a person, taken from the supplied record.
+     * @var Person $person the person where parents should be added to.
+     * @var GedcomRecord|Individual $record the person's gedcom record.
+     * @return Person
+     */
 	public static function addParentsFromRecord($person, $record) {
 		if (empty($record)) {
 			return $person;
@@ -213,8 +227,13 @@ class JsonLDTools {
 		
 		return $person;
 	}
-	
-	public static function addChildrenFromRecord($person, $record) {
+
+    /**
+     * @param Person $person
+     * @param Individual $record
+     * @return mixed
+     */
+    public static function addChildrenFromRecord($person, $record) {
 		if (empty($record)) {
 			return $person;
 		}
@@ -222,8 +241,9 @@ class JsonLDTools {
 		if (empty($record->getSpouseFamilies())) {
 			return $person;
 		}
-		
-		$children = array();
+
+        /** @var Individual[] $children */
+        $children = array();
 		/* we need a unique array first */
 		foreach ($record->getSpouseFamilies() as $fam) {
 			foreach ($fam->getChildren() as $child) {
@@ -232,7 +252,8 @@ class JsonLDTools {
 		}
 		
 		foreach ($children as $child) {
-			if (!($child->canShow())) {
+            // TODO: replace null with current user user
+			if (!($child->canShowName())) {
 				continue;
 			}
 			$childPerson = new Person();

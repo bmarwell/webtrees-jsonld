@@ -50,6 +50,12 @@ class Person extends JsonLD {
 	 * @var Place
 	 */
 	public $deathPlace;
+
+	/**
+	 * Date of death.
+	 * @var String $deathDate;
+	 */
+	public $deathDate;
 	
 	public $email;
 	public $url;
@@ -64,7 +70,7 @@ class Person extends JsonLD {
 	public $children = array();
 	/**
 	 * A gedcom imageObject record.
-	 * @var Object $image
+	 * @var ImageObject $image
 	 */
 	public $image;
 
