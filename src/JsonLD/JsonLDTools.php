@@ -16,83 +16,86 @@
 
 namespace bmarwell\WebtreesModules\jsonld;
 
+use Fisharebest\Webtrees\Family;
 use Fisharebest\Webtrees\GedcomRecord;
 use Fisharebest\Webtrees\Individual;
-use Fisharebest\Webtrees\Family;
-use Fisharebest\Webtrees\Note;
-use Fisharebest\Webtrees\Source;
-use Fisharebest\Webtrees\Repository;
 use Fisharebest\Webtrees\Media;
+use Fisharebest\Webtrees\Note;
+use Fisharebest\Webtrees\Repository;
+use Fisharebest\Webtrees\Source;
 
 /**
  * Various static function used for JsonLD-output.
  * @author bmarwell
  *
  */
-class JsonLDTools {
-	/**
-	 * Serialize an object into json. Empty values are stripped 
-	 * by unsetting the fields.
-	 * @param Person $jsonldobject the person (or any other object) to jsonize.
-	 * @return GedcomRecord|Individual|Family|Source|Repository|Media|Note the uncluttered object, no null values.
-	 */
-	public static function jsonize($jsonldobject) {
-		if (empty($jsonldobject) || (!is_object($jsonldobject))) {
-			return new Person(true);
-		}
-		/* create a new object, so we don't modify the original one. */
+class JsonLDTools
+{
+    /**
+     * Serialize an object into json. Empty values are stripped
+     * by unsetting the fields.
+     * @param Person $jsonldobject the person (or any other object) to jsonize.
+     * @return GedcomRecord|Individual|Family|Source|Repository|Media|Note the uncluttered object, no null values.
+     */
+    public static function jsonize($jsonldobject)
+    {
+        if (empty($jsonldobject) || (!is_object($jsonldobject))) {
+            return new Person(true);
+        }
+        /* create a new object, so we don't modify the original one. */
         /** @var GedcomRecord|Individual|Family|Source|Repository|Media|Note $returnobj */
         $returnobj = clone $jsonldobject;
-		
-		$returnobj = static::empty_object($returnobj);
-	
-		/* strip empty key/value-pairs */
-		$returnobj = (object) array_filter((array) $returnobj);
-		
-		return $returnobj;
-	}
+
+        $returnobj = static::empty_object($returnobj);
+
+        /* strip empty key/value-pairs */
+        $returnobj = (object)array_filter((array)$returnobj);
+
+        return $returnobj;
+    }
 
     /**
      * Unset empty fields from object.
      * @param GedcomRecord|Individual|Family|Source|Repository|Media|Note|ImageObject|jsonld_Place $obj
      * @return ImageObject|Family|GedcomRecord|Individual|Media|Note|Repository|Source|jsonld_Place
      */
-	private static function empty_object(&$obj) {
-		
-		if (is_array($obj)) {
-			/* 
-			 * arrays cannot be modified this easily,
-			 * a new one is passed for readability.
-			 */
-			$newarray = array();
-			foreach ($obj as $key => $value) {
-				array_push($newarray, static::empty_object($value));
-			}
-			
-			return $newarray;
-		} else if (is_string($obj) || (is_int($obj))) {
-			/* this is just fine */
-			return $obj;
-		}
-		$returnobj = clone $obj;
-		
-		foreach (get_object_vars($returnobj) as $key => $value) {
-			if (is_object($value)) {
-				static::empty_object($returnobj->$key);
-				$value = static::empty_object($returnobj->$key);
-			}
-			
-			if (is_array($value)) {
-				$returnobj->$key = static::empty_object($returnobj->$key);
-			}
-			
-			if (empty($value)) {
-				unset($returnobj->{$key});
-			}
-		}
-		
-		return $returnobj;
-	}
+    private static function empty_object(&$obj)
+    {
+
+        if (is_array($obj)) {
+            /*
+             * arrays cannot be modified this easily,
+             * a new one is passed for readability.
+             */
+            $newarray = array();
+            foreach ($obj as $key => $value) {
+                array_push($newarray, static::empty_object($value));
+            }
+
+            return $newarray;
+        } else if (is_string($obj) || (is_int($obj))) {
+            /* this is just fine */
+            return $obj;
+        }
+        $returnobj = clone $obj;
+
+        foreach (get_object_vars($returnobj) as $key => $value) {
+            if (is_object($value)) {
+                static::empty_object($returnobj->$key);
+                $value = static::empty_object($returnobj->$key);
+            }
+
+            if (is_array($value)) {
+                $returnobj->$key = static::empty_object($returnobj->$key);
+            }
+
+            if (empty($value)) {
+                unset($returnobj->{$key});
+            }
+        }
+
+        return $returnobj;
+    }
 
     /**
      * For a given person object (re-)set the fields with sane
@@ -101,95 +104,97 @@ class JsonLDTools {
      * @var GedcomRecord|Individual|Family|Source|Repository|Media|Note $record
      * @return Person
      */
-	public static function fillPersonFromRecord($person, $record) {
-		/* check if record exists */
-		if (empty($record)) {
-			return $person;
-		}
+    public static function fillPersonFromRecord($person, $record)
+    {
+        /* check if record exists */
+        if (empty($record)) {
+            return $person;
+        }
 
-		$person->name =  $record->getAllNames()[$record->getPrimaryName()]['fullNN'];
-		$person->givenName =  $record->getAllNames()[$record->getPrimaryName()]['givn'];
-		$person->familyName =  $record->getAllNames()[$record->getPrimaryName()]['surn'];
+        $person->name = $record->getAllNames()[$record->getPrimaryName()]['fullNN'];
+        $person->givenName = $record->getAllNames()[$record->getPrimaryName()]['givn'];
+        $person->familyName = $record->getAllNames()[$record->getPrimaryName()]['surn'];
 // 		$person->familyName =  $record->getAllNames()[$record->getPrimaryName()]['surname'];
-		$person->gender = $record->getSex();
-		$person->setId($record->getAbsoluteLinkUrl());
-		
-		/* Dates */
-		// XXX: match beginning and end of string, doesn't seem to work.
-		$birthdate = $record->getBirthDate()->display(false, '%Y-%m-%d', false);
-		if (preg_match('/[0-9]{4}-[0-9]{2}-[0-9]{2}/', $birthdate) === 1) {
-			$person->birthDate = strip_tags($birthdate);
-		} else if (preg_match('/between/', $birthdate)) {
-			$person->birthDate = strip_tags($record->getBirthDate()->maximumDate()->format('%Y') .
-				'/' . $record->getBirthDate()->maximumDate()->format('%Y'));
-		}
-		
-		$deathDate = $record->getDeathDate()->display(false, '%Y-%m-%d', false);
-		if (preg_match('/[0-9]{4}-[0-9][0-9]-[0-9][0-9]/', $deathDate) === 1) {
-			$person->deathDate = strip_tags($deathDate);
-		} else if (preg_match('/between/', $deathDate)) {
-			$person->deathDate = strip_tags($record->getDeathDate()->maximumDate()->format('%Y') .
-				'/' . $record->getDeathDate()->maximumDate());
-		}
-		
-		/* add highlighted image */
-		if ($record->findHighlightedMedia()) {
-			$person->image = static::createMediaObject($record->findHighlightedMedia());
-			$person->image = static::empty_object($person->image);
-		}
-		
-		// TODO: Get place object.
-		if ($record->getBirthPlace()) {
-			$person->birthPlace = new jsonld_Place();
-			$person->birthPlace->name = $record->getBirthPlace();
-			$person->birthPlace->setId($record->getBirthPlace());
-			$person->birthPlace = static::empty_object($person->birthPlace);
-		}
-		
-		if ($record->getDeathPlace()) {
-			$person->deathPlace = new jsonld_Place();
-			$person->deathPlace->name = $record->getDeathPlace();
-			$person->deathPlace->setId($record->getDeathPlace());
-			$person->deathPlace = static::empty_object($person->deathPlace);
-		}
-		
-		/*
-		 * TODO: Add spouse, etc.
-		 */
-		
-		return $person;
-	}
+        $person->gender = $record->getSex();
+        $person->setId($record->getAbsoluteLinkUrl());
+
+        /* Dates */
+        // XXX: match beginning and end of string, doesn't seem to work.
+        $birthdate = $record->getBirthDate()->display(false, '%Y-%m-%d', false);
+        if (preg_match('/[0-9]{4}-[0-9]{2}-[0-9]{2}/', $birthdate) === 1) {
+            $person->birthDate = strip_tags($birthdate);
+        } else if (preg_match('/between/', $birthdate)) {
+            $person->birthDate = strip_tags($record->getBirthDate()->maximumDate()->format('%Y') .
+                '/' . $record->getBirthDate()->maximumDate()->format('%Y'));
+        }
+
+        $deathDate = $record->getDeathDate()->display(false, '%Y-%m-%d', false);
+        if (preg_match('/[0-9]{4}-[0-9][0-9]-[0-9][0-9]/', $deathDate) === 1) {
+            $person->deathDate = strip_tags($deathDate);
+        } else if (preg_match('/between/', $deathDate)) {
+            $person->deathDate = strip_tags($record->getDeathDate()->maximumDate()->format('%Y') .
+                '/' . $record->getDeathDate()->maximumDate());
+        }
+
+        /* add highlighted image */
+        if ($record->findHighlightedMedia()) {
+            $person->image = static::createMediaObject($record->findHighlightedMedia());
+            $person->image = static::empty_object($person->image);
+        }
+
+        // TODO: Get place object.
+        if ($record->getBirthPlace()) {
+            $person->birthPlace = new jsonld_Place();
+            $person->birthPlace->name = $record->getBirthPlace();
+            $person->birthPlace->setId($record->getBirthPlace());
+            $person->birthPlace = static::empty_object($person->birthPlace);
+        }
+
+        if ($record->getDeathPlace()) {
+            $person->deathPlace = new jsonld_Place();
+            $person->deathPlace->name = $record->getDeathPlace();
+            $person->deathPlace->setId($record->getDeathPlace());
+            $person->deathPlace = static::empty_object($person->deathPlace);
+        }
+
+        /*
+         * TODO: Add spouse, etc.
+         */
+
+        return $person;
+    }
 
     /**
      * @param Media $media
      * @return ImageObject
      */
-    private static function createMediaObject($media) {
-		$imageObject = new ImageObject();
-		
-		if (empty($media)) {
-			return $imageObject;
-		}
-		
-		$imageObject->contentUrl = WT_BASE_URL . $media->getHtmlUrlDirect();
-		$imageObject->name = $media->getAllNames()[$media->getPrimaryName()]['fullNN'];
-		// [0]=width [1]=height [2]=filetype ['mime']=mimetype
-		$imageObject->width = $media->getImageAttributes()[0];
-		$imageObject->height = $media->getImageAttributes()[1];
-		$imageObject->description = strip_tags($media->getFullName());
-		$imageObject->thumbnailUrl = WT_BASE_URL . $media->getHtmlUrlDirect('thumb');
-		$imageObject->setId($media->getAbsoluteLinkUrl());
-			
-		$imageObject->thumbnail = new ImageObject();
-		$imageObject->thumbnail->contentUrl = WT_BASE_URL . $media->getHtmlUrlDirect('thumb');
-		$imageObject->thumbnail->width = $media->getImageAttributes('thumb')[0];
-		$imageObject->thumbnail->height = $media->getImageAttributes('thumb')[1];
-		$imageObject->thumbnail->setId($media->getAbsoluteLinkUrl());
-		
-		$imageObject->thumbnail = static::empty_object($imageObject->thumbnail);
-		
-		return $imageObject;
-	}
+    private static function createMediaObject($media)
+    {
+        $imageObject = new ImageObject();
+
+        if (empty($media)) {
+            return $imageObject;
+        }
+
+        $imageObject->contentUrl = WT_BASE_URL . $media->getHtmlUrlDirect();
+        $imageObject->name = $media->getAllNames()[$media->getPrimaryName()]['fullNN'];
+        // [0]=width [1]=height [2]=filetype ['mime']=mimetype
+        $imageObject->width = $media->getImageAttributes()[0];
+        $imageObject->height = $media->getImageAttributes()[1];
+        $imageObject->description = strip_tags($media->getFullName());
+        $imageObject->thumbnailUrl = WT_BASE_URL . $media->getHtmlUrlDirect('thumb');
+        $imageObject->setId($media->getAbsoluteLinkUrl());
+
+        $imageObject->thumbnail = new ImageObject();
+        $imageObject->thumbnail->contentUrl = WT_BASE_URL . $media->getHtmlUrlDirect('thumb');
+        $imageObject->thumbnail->width = $media->getImageAttributes('thumb')[0];
+        $imageObject->thumbnail->height = $media->getImageAttributes('thumb')[1];
+        $imageObject->thumbnail->setId($media->getAbsoluteLinkUrl());
+
+        $imageObject->thumbnail = static::empty_object($imageObject->thumbnail);
+
+        return $imageObject;
+    }
 
     /**
      * Adds parents to a person, taken from the supplied record.
@@ -197,71 +202,72 @@ class JsonLDTools {
      * @var GedcomRecord|Individual $record the person's gedcom record.
      * @return Person
      */
-	public static function addParentsFromRecord($person, $record) {
-		if (empty($record)) {
-			return $person;
-		}
-		
-		if (empty($record->getPrimaryChildFamily())) {
-			return $person;
-		}
-		
-		$parentFamily = $record->getPrimaryChildFamily();
-		
-		if (!$parentFamily) {
-			/* No family, no parents to be added */ 
-			return $person;
-		}
-		
-		if ($parentFamily->getHusband()) {
-			$husband = new Person();
-			$husband = static::fillPersonFromRecord($husband, $parentFamily->getHusband());
-			$person->addParent($husband);
-		}
-		
-		if ($parentFamily->getWife()) {
-			$wife = new Person();
-			$wife = static::fillPersonFromRecord($wife, $parentFamily->getWife());
-			$person->addParent($wife);
-		}
-		
-		return $person;
-	}
+    public static function addParentsFromRecord($person, $record)
+    {
+        if (empty($record)) {
+            return $person;
+        }
+
+        if (empty($record->getPrimaryChildFamily())) {
+            return $person;
+        }
+
+        $parentFamily = $record->getPrimaryChildFamily();
+
+        if (!$parentFamily) {
+            /* No family, no parents to be added */
+            return $person;
+        }
+
+        if ($parentFamily->getHusband()) {
+            $husband = new Person();
+            $husband = static::fillPersonFromRecord($husband, $parentFamily->getHusband());
+            $person->addParent($husband);
+        }
+
+        if ($parentFamily->getWife()) {
+            $wife = new Person();
+            $wife = static::fillPersonFromRecord($wife, $parentFamily->getWife());
+            $person->addParent($wife);
+        }
+
+        return $person;
+    }
 
     /**
      * @param Person $person
      * @param Individual $record
      * @return mixed
      */
-    public static function addChildrenFromRecord($person, $record) {
-		if (empty($record)) {
-			return $person;
-		}
-		
-		if (empty($record->getSpouseFamilies())) {
-			return $person;
-		}
+    public static function addChildrenFromRecord($person, $record)
+    {
+        if (empty($record)) {
+            return $person;
+        }
+
+        if (empty($record->getSpouseFamilies())) {
+            return $person;
+        }
 
         /** @var Individual[] $children */
         $children = array();
-		/* we need a unique array first */
-		foreach ($record->getSpouseFamilies() as $fam) {
-			foreach ($fam->getChildren() as $child) {
-				$children[$child->getXref()] = $child;
-			}
-		}
-		
-		foreach ($children as $child) {
-            // TODO: replace null with current user user
-			if (!($child->canShowName())) {
-				continue;
-			}
-			$childPerson = new Person();
-			$childPerson = static::fillPersonFromRecord($childPerson, $child);
-			$person->addChild($childPerson);
-		}
-		
-		return $person;
-	}
-	
+        /* we need a unique array first */
+        foreach ($record->getSpouseFamilies() as $fam) {
+            foreach ($fam->getChildren() as $child) {
+                $children[$child->getXref()] = $child;
+            }
+        }
+
+        foreach ($children as $child) {
+            if (!($child->canShowName())) {
+                continue;
+            }
+            $childPerson = new Person();
+            $childPerson = static::fillPersonFromRecord($childPerson, $child);
+            $person->addChild($childPerson);
+        }
+
+        return $person;
+    }
+
 }

@@ -16,26 +16,28 @@
 
 namespace bmarwell\WebtreesModules\jsonld;
 
-class jsonld_Place extends JsonLD {
-	/**
-	 * Name of the place
-	 * @var String the name of the place.
-	 */
-	public $name;
+class jsonld_Place extends JsonLD
+{
+    /**
+     * Name of the place
+     * @var String the name of the place.
+     */
+    public $name;
 
-	/**
-	 * Geo-Location of the place
-	 * @var String the geoLocation.
-	 */
-	public $geo;
-	
-	/**
-	 * The address of this place.
-	 * @var String the address.
-	 */
-	public $address;
-	
-	function __construct($addContext = FALSE) {
-		parent::__construct("Place", $addContext);
-	}
+    /**
+     * Geo-Location of the place
+     * @var String the geoLocation.
+     */
+    public $geo;
+
+    /**
+     * The address of this place.
+     * @var String the address.
+     */
+    public $address;
+
+    function __construct($addContext = FALSE)
+    {
+        parent::__construct("Place", $addContext);
+    }
 }

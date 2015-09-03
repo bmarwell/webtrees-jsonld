@@ -17,27 +17,25 @@
 namespace bmarwell\WebtreesModules\jsonld;
 
 use Composer\Autoload\ClassLoader;
-
-use Fisharebest\Webtrees\Module\AbstractModule;
-use Fisharebest\Webtrees\Module\ModuleTabInterface;
-
+use Fisharebest\Webtrees\Auth;
+use Fisharebest\Webtrees\Family;
+use Fisharebest\Webtrees\Filter;
 use Fisharebest\Webtrees\GedcomRecord;
 use Fisharebest\Webtrees\Individual;
-use Fisharebest\Webtrees\Family;
-use Fisharebest\Webtrees\Note;
-use Fisharebest\Webtrees\Source;
-use Fisharebest\Webtrees\Repository;
 use Fisharebest\Webtrees\Media;
-
-use Fisharebest\Webtrees\Auth;
-use Fisharebest\Webtrees\Filter;
+use Fisharebest\Webtrees\Module\AbstractModule;
+use Fisharebest\Webtrees\Module\ModuleTabInterface;
+use Fisharebest\Webtrees\Note;
+use Fisharebest\Webtrees\Repository;
+use Fisharebest\Webtrees\Source;
 
 /**
  * Class implementing application/ld+json output.
  * @author bmarwell
  *
  */
-class JsonLdModule extends AbstractModule implements ModuleTabInterface {
+class JsonLdModule extends AbstractModule implements ModuleTabInterface
+{
 
     /** @var string location of the fancy treeview module files */
     var $directory;
@@ -48,130 +46,143 @@ class JsonLdModule extends AbstractModule implements ModuleTabInterface {
         $this->directory = WT_MODULES_DIR . $this->getName();
         $this->action = Filter::get('mod_action');
 
-		// register the namespaces
-		$loader = new ClassLoader();
-		$loader->addPsr4('bmarwell\\WebtreesModules\\jsonld\\', $this->directory);
-		$loader->register();
+        // register the namespaces
+        $loader = new ClassLoader();
+        $loader->addPsr4('bmarwell\\WebtreesModules\\jsonld\\', $this->directory);
+        $loader->register();
     }
 
-	/* ****************************
-	 * Module configuration
-	 * ****************************/
+    /* ****************************
+     * Module configuration
+     * ****************************/
 
-	/** {@inheritdoc} */
-	public function getName() {
-		return "JsonLD";
-	}
-
-    public function getTitle() {
+    /** {@inheritdoc} */
+    public function getName()
+    {
         return "JsonLD";
     }
 
-	/** {@inheritdoc} */
-	public function getDescription() {
-		return "Adds json-ld-data to persons as described in schema.org/Person";
-	}
-	
-	/** {@inheritdoc} */
-	public function defaultAccessLevel() {
-		return Auth::PRIV_PRIVATE;
-	}
-	
-	/* ****************************
-	 * Implements Tab
-	 * ****************************/
-	
-	/**
-	 * The user can re-arrange the tab order, but until they do, this
-	 * is the order in which tabs are shown.
-	 *
-	 * @return int
-	 */
-	public function defaultTabOrder() {
-		return 500;
-	}
-
-    public function getTabTitle() {
+    public function getTitle()
+    {
         return "JsonLD";
     }
-	
-	/**
-	 * Generate the HTML content of this tab.
-	 *
-	 * @return string
-	*/
-	public function getTabContent() {
-		global $controller;
+
+    /** {@inheritdoc} */
+    public function getDescription()
+    {
+        return "Adds json-ld-data to persons as described in schema.org/Person";
+    }
+
+    /** {@inheritdoc} */
+    public function defaultAccessLevel()
+    {
+        return Auth::PRIV_PRIVATE;
+    }
+
+    /* ****************************
+     * Implements Tab
+     * ****************************/
+
+    /**
+     * The user can re-arrange the tab order, but until they do, this
+     * is the order in which tabs are shown.
+     *
+     * @return int
+     */
+    public function defaultTabOrder()
+    {
+        return 500;
+    }
+
+    public function getTabTitle()
+    {
+        return "JsonLD";
+    }
+
+    /**
+     * Generate the HTML content of this tab.
+     *
+     * @return string
+     */
+    public function getTabContent()
+    {
+        global $controller;
 
         /** @var Person $person */
         $person = new Person(true);
         /** @var GedcomRecord|Individual|Family|Source|Repository|Media|Note $record */
         $record = $controller->getSignificantIndividual();
-		
-		// FIXME: record may be invisible!
-		$person = JsonLDTools::fillPersonFromRecord($person, $record);
-		$person = JsonLDTools::addParentsFromRecord($person, $record);
-		$person = JsonLDTools::addChildrenFromRecord($person, $record);
-		
-		$jsonld = json_encode(
-				JsonLDTools::jsonize($person), 
-				JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-		
-		return static::getScriptTags($jsonld) . static::getTags($jsonld, "pre");
-	}
-	
-	private static function getTags($stringenclosed, $tag = 'pre') {
-		return "<$tag>" . $stringenclosed . "</$tag>";
-	}
-	
-	private static function getScriptTags($stringenclosed) {
-		return 
-			  '<script type="application/ld+json" id="json-ld-data">'
-			.  $stringenclosed . '</script>';
-	}
-	
-	/**
-	 * Is this tab empty?  If so, we don't always need to display it.
-	 *
-	 * @return bool
-	*/
-	public function hasTabContent() {
-		global $controller;
-		
-		return 
-			(count($controller->record->getAllNames()) > 0) /* no names, no cookies */
-			&& ($controller->record->canShowName());         /* no id */
-	}
-	
-	/**
-	 * Can this tab load asynchronously?
-	 *
-	 * @return bool
-	*/
-	public function canLoadAjax() {
-		return false;
-	}
-	
-	/**
-	 * Any content (e.g. Javascript) that needs to be rendered before the tabs.
-	 *
-	 * This function is probably not needed, as there are better ways to achieve this.
-	 *
-	 * @return string
-	*/
-	public function getPreLoadContent() {
-		return '';
-	}
-	
-	/**
-	 * A greyed out tab has no actual content, but may perhaps have
-	 * options to create content.
-	 *
-	 * @return bool
-	*/
-	public function isGrayedOut() {
-		return false;
-	}
+
+        // FIXME: record may be invisible!
+        $person = JsonLDTools::fillPersonFromRecord($person, $record);
+        $person = JsonLDTools::addParentsFromRecord($person, $record);
+        $person = JsonLDTools::addChildrenFromRecord($person, $record);
+
+        $jsonld = json_encode(
+            JsonLDTools::jsonize($person),
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+        return static::getScriptTags($jsonld) . static::getTags($jsonld, "pre");
+    }
+
+    private static function getScriptTags($stringenclosed)
+    {
+        return
+            '<script type="application/ld+json" id="json-ld-data">'
+            . $stringenclosed . '</script>';
+    }
+
+    private static function getTags($stringenclosed, $tag = 'pre')
+    {
+        return "<$tag>" . $stringenclosed . "</$tag>";
+    }
+
+    /**
+     * Is this tab empty?  If so, we don't always need to display it.
+     *
+     * @return bool
+     */
+    public function hasTabContent()
+    {
+        global $controller;
+
+        return
+            (count($controller->record->getAllNames()) > 0) /* no names, no cookies */
+            && ($controller->record->canShowName());         /* no id */
+    }
+
+    /**
+     * Can this tab load asynchronously?
+     *
+     * @return bool
+     */
+    public function canLoadAjax()
+    {
+        return false;
+    }
+
+    /**
+     * Any content (e.g. Javascript) that needs to be rendered before the tabs.
+     *
+     * This function is probably not needed, as there are better ways to achieve this.
+     *
+     * @return string
+     */
+    public function getPreLoadContent()
+    {
+        return '';
+    }
+
+    /**
+     * A greyed out tab has no actual content, but may perhaps have
+     * options to create content.
+     *
+     * @return bool
+     */
+    public function isGrayedOut()
+    {
+        return false;
+    }
 
 }
 
