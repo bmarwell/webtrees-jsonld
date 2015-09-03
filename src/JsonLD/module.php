@@ -149,7 +149,7 @@ class JsonLdModule extends AbstractModule implements ModuleTabInterface {
 	 * @return bool
 	*/
 	public function canLoadAjax() {
-		return true;
+		return false;
 	}
 	
 	/**
