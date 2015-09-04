@@ -16,7 +16,6 @@
 
 namespace bmarwell\WebtreesModules\jsonld;
 
-use Fisharebest\Webtrees\Log;
 use Fisharebest\Webtrees\Place;
 
 /**
@@ -24,6 +23,9 @@ use Fisharebest\Webtrees\Place;
  */
 class Person extends JsonLD
 {
+    /**
+     * @var
+     */
     public $name;
 
     /**
@@ -38,6 +40,10 @@ class Person extends JsonLD
      * @var String the last name or family name.
      */
     public $familyName;
+    /**
+     * Date of Birth in ISO.
+     * @var String $birthDate;
+     */
     public $birthDate;
 
     /**
@@ -58,10 +64,27 @@ class Person extends JsonLD
      */
     public $deathDate;
 
+    /**
+     * E-Mail adress as string.
+     * @var String $email
+     */
     public $email;
+    /**
+     * @var String $url
+     */
     public $url;
+    /**
+     * @var array $address
+     */
     public $address = array();
+    /**
+     * U or M or F.
+     * @var string Gender
+     */
     public $gender = "U";
+    /**
+     * @var array
+     */
     public $parents = array();
 
     /**
@@ -75,22 +98,33 @@ class Person extends JsonLD
      */
     public $image;
 
+    /**
+     * @param bool|FALSE $addContext
+     */
     function __construct($addContext = FALSE)
     {
-        Log::addDebugLog("creating person, context is $addContext");
         parent::__construct("Person", $addContext);
     }
 
+    /**
+     * @param Person $address
+     */
     function addAddress($address)
     {
         array_push($this->address, $address);
     }
 
+    /**
+     * @param Person $parent
+     */
     function addParent($parent)
     {
         array_push($this->parents, $parent);
     }
 
+    /**
+     * @param Person $child
+     */
     function addChild($child)
     {
         array_push($this->children, $child);

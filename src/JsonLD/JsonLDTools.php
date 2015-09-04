@@ -259,7 +259,7 @@ class JsonLDTools
         }
 
         foreach ($children as $child) {
-            if (!($child->canShowName())) {
+            if (!$child->canShow()) {
                 continue;
             }
             $childPerson = new Person();

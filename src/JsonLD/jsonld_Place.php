@@ -36,6 +36,10 @@ class jsonld_Place extends JsonLD
      */
     public $address;
 
+    /**
+     * Construct using context?
+     * @param bool|FALSE $addContext
+     */
     function __construct($addContext = FALSE)
     {
         parent::__construct("Place", $addContext);
