@@ -123,7 +123,7 @@ class Person extends JsonLD
     /**
      * @param Person $parent
      */
-    public function addParent($parent)
+    public function addParent(Person $parent)
     {
         array_push($this->parents, $parent);
     }
@@ -131,7 +131,7 @@ class Person extends JsonLD
     /**
      * @param Person $child
      */
-    public function addChild($child)
+    public function addChild(Person $child)
     {
         array_push($this->children, $child);
     }
