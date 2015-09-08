@@ -38,7 +38,7 @@ class JsonLdModule extends AbstractModule implements ModuleTabInterface
 {
 
     /** @var string location of the fancy treeview module files */
-    var $directory;
+    private $directory;
 
     public function __construct()
     {
