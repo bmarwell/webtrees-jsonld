@@ -69,6 +69,4 @@ class ImageObject extends JsonLD
     {
         parent::__construct("ImageObject");
     }
-
-
 }

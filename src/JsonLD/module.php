@@ -183,7 +183,6 @@ class JsonLdModule extends AbstractModule implements ModuleTabInterface
     {
         return false;
     }
-
 }
 
 return new JsonLdModule();
