@@ -20,13 +20,12 @@ use Fisharebest\Webtrees\Log;
 
 abstract class JsonLD
 {
-
     /**
      * Creates a JsonLD-Objekt with type set to $jsonldtype.
      * @param String $jsonldtype
      * @param bool|FALSE $addContext
      */
-    function __construct($jsonldtype, $addContext = FALSE)
+    public function __construct($jsonldtype, $addContext = false)
     {
         Log::addDebugLog("creating JsonLD-object");
         $context = "@context";
