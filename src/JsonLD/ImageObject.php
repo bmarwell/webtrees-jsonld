@@ -27,48 +27,46 @@ class ImageObject extends JsonLD
     /**
      * Actual bytes of the media object.
      */
-    var $contentUrl;
+    public $contentUrl;
 
     /**
      * A name for this image.
      * @var String
      */
-    var $name;
+    public $name;
 
     /**
      * Some words about this image.
      * @var String
      */
-    var $description;
+    public $description;
 
     /**
      * Width of the image in pixels.
      * @var int
      */
-    var $width;
+    public $width;
 
     /**
      * Height of the image in pixels.
      * @var int
      */
-    var $height;
+    public $height;
 
     /**
      * A direct link to a thumbnail image file.
      * @var String
      */
-    var $thumbnailUrl;
+    public $thumbnailUrl;
 
     /**
      * Details on the thumbnail, it is an image object itself.
      * @var ImageObject
      */
-    var $thumbnail;
+    public $thumbnail;
 
     public function __construct()
     {
         parent::__construct("ImageObject");
     }
-
-
 }

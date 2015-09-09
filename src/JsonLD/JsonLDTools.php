@@ -46,7 +46,7 @@ class JsonLDTools
         /** @var GedcomRecord|Individual|Family|Source|Repository|Media|Note $returnobj */
         $returnobj = clone $jsonldobject;
 
-        $returnobj = static::empty_object($returnobj);
+        $returnobj = static::emptyObject($returnobj);
 
         /* strip empty key/value-pairs */
         $returnobj = (object)array_filter((array)$returnobj);
@@ -59,9 +59,8 @@ class JsonLDTools
      * @param GedcomRecord|Individual|Family|Source|Repository|Media|Note|ImageObject|jsonld_Place $obj
      * @return ImageObject|Family|GedcomRecord|Individual|Media|Note|Repository|Source|jsonld_Place
      */
-    private static function empty_object(&$obj)
+    private static function emptyObject(&$obj)
     {
-
         if (is_array($obj)) {
             /*
              * arrays cannot be modified this easily,
@@ -69,11 +68,11 @@ class JsonLDTools
              */
             $newarray = array();
             foreach ($obj as $key => $value) {
-                array_push($newarray, static::empty_object($value));
+                array_push($newarray, static::emptyObject($value));
             }
 
             return $newarray;
-        } else if (is_string($obj) || (is_int($obj))) {
+        } elseif (is_string($obj) || (is_int($obj))) {
             /* this is just fine */
             return $obj;
         }
@@ -81,12 +80,12 @@ class JsonLDTools
 
         foreach (get_object_vars($returnobj) as $key => $value) {
             if (is_object($value)) {
-                static::empty_object($returnobj->$key);
-                $value = static::empty_object($returnobj->$key);
+                static::emptyObject($returnobj->$key);
+                $value = static::emptyObject($returnobj->$key);
             }
 
             if (is_array($value)) {
-                $returnobj->$key = static::empty_object($returnobj->$key);
+                $returnobj->$key = static::emptyObject($returnobj->$key);
             }
 
             if (empty($value)) {
@@ -123,7 +122,7 @@ class JsonLDTools
         $birthdate = $record->getBirthDate()->display(false, '%Y-%m-%d', false);
         if (preg_match('/[0-9]{4}-[0-9]{2}-[0-9]{2}/', $birthdate) === 1) {
             $person->birthDate = strip_tags($birthdate);
-        } else if (preg_match('/between/', $birthdate)) {
+        } elseif (preg_match('/between/', $birthdate)) {
             $person->birthDate = strip_tags($record->getBirthDate()->maximumDate()->format('%Y') .
                 '/' . $record->getBirthDate()->maximumDate()->format('%Y'));
         }
@@ -131,7 +130,7 @@ class JsonLDTools
         $deathDate = $record->getDeathDate()->display(false, '%Y-%m-%d', false);
         if (preg_match('/[0-9]{4}-[0-9][0-9]-[0-9][0-9]/', $deathDate) === 1) {
             $person->deathDate = strip_tags($deathDate);
-        } else if (preg_match('/between/', $deathDate)) {
+        } elseif (preg_match('/between/', $deathDate)) {
             $person->deathDate = strip_tags($record->getDeathDate()->maximumDate()->format('%Y') .
                 '/' . $record->getDeathDate()->maximumDate());
         }
@@ -139,7 +138,7 @@ class JsonLDTools
         /* add highlighted image */
         if ($record->findHighlightedMedia()) {
             $person->image = static::createMediaObject($record->findHighlightedMedia());
-            $person->image = static::empty_object($person->image);
+            $person->image = static::emptyObject($person->image);
         }
 
         // TODO: Get place object.
@@ -147,14 +146,14 @@ class JsonLDTools
             $person->birthPlace = new jsonld_Place();
             $person->birthPlace->name = $record->getBirthPlace();
             $person->birthPlace->setId($record->getBirthPlace());
-            $person->birthPlace = static::empty_object($person->birthPlace);
+            $person->birthPlace = static::emptyObject($person->birthPlace);
         }
 
         if ($record->getDeathPlace()) {
             $person->deathPlace = new jsonld_Place();
             $person->deathPlace->name = $record->getDeathPlace();
             $person->deathPlace->setId($record->getDeathPlace());
-            $person->deathPlace = static::empty_object($person->deathPlace);
+            $person->deathPlace = static::emptyObject($person->deathPlace);
         }
 
         /*
@@ -191,7 +190,7 @@ class JsonLDTools
         $imageObject->thumbnail->height = $media->getImageAttributes('thumb')[1];
         $imageObject->thumbnail->setId($media->getAbsoluteLinkUrl());
 
-        $imageObject->thumbnail = static::empty_object($imageObject->thumbnail);
+        $imageObject->thumbnail = static::emptyObject($imageObject->thumbnail);
 
         return $imageObject;
     }
@@ -269,5 +268,4 @@ class JsonLDTools
 
         return $person;
     }
-
 }

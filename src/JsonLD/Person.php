@@ -40,9 +40,10 @@ class Person extends JsonLD
      * @var String the last name or family name.
      */
     public $familyName;
+
     /**
      * Date of Birth in ISO.
-     * @var String $birthDate;
+     * @var String $birthDate ;
      */
     public $birthDate;
 
@@ -69,19 +70,23 @@ class Person extends JsonLD
      * @var String $email
      */
     public $email;
+
     /**
      * @var String $url
      */
     public $url;
+
     /**
      * @var array $address
      */
     public $address = array();
+
     /**
      * U or M or F.
      * @var string Gender
      */
     public $gender = "U";
+
     /**
      * @var array
      */
@@ -92,6 +97,7 @@ class Person extends JsonLD
      * @var Person[] the children, regardless of their families.
      */
     public $children = array();
+
     /**
      * A gedcom imageObject record.
      * @var ImageObject $image
@@ -101,7 +107,7 @@ class Person extends JsonLD
     /**
      * @param bool|FALSE $addContext
      */
-    function __construct($addContext = FALSE)
+    public function __construct($addContext = false)
     {
         parent::__construct("Person", $addContext);
     }
@@ -109,7 +115,7 @@ class Person extends JsonLD
     /**
      * @param Person $address
      */
-    function addAddress($address)
+    public function addAddress($address)
     {
         array_push($this->address, $address);
     }
@@ -117,7 +123,7 @@ class Person extends JsonLD
     /**
      * @param Person $parent
      */
-    function addParent($parent)
+    public function addParent(Person $parent)
     {
         array_push($this->parents, $parent);
     }
@@ -125,7 +131,7 @@ class Person extends JsonLD
     /**
      * @param Person $child
      */
-    function addChild($child)
+    public function addChild(Person $child)
     {
         array_push($this->children, $child);
     }

@@ -36,9 +36,8 @@ use Fisharebest\Webtrees\Source;
  */
 class JsonLdModule extends AbstractModule implements ModuleTabInterface
 {
-
     /** @var string location of the fancy treeview module files */
-    var $directory;
+    private $directory;
 
     public function __construct()
     {
@@ -120,7 +119,8 @@ class JsonLdModule extends AbstractModule implements ModuleTabInterface
 
         $jsonld = json_encode(
             JsonLDTools::jsonize($person),
-            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+        );
 
         return static::getScriptTags($jsonld) . static::getTags($jsonld, "pre");
     }
@@ -183,7 +183,6 @@ class JsonLdModule extends AbstractModule implements ModuleTabInterface
     {
         return false;
     }
-
 }
 
 return new JsonLdModule();
