@@ -21,6 +21,7 @@ use Fisharebest\Webtrees\Auth;
 use Fisharebest\Webtrees\Family;
 use Fisharebest\Webtrees\Filter;
 use Fisharebest\Webtrees\GedcomRecord;
+use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Media;
 use Fisharebest\Webtrees\Module\AbstractModule;
@@ -65,7 +66,7 @@ class JsonLdModule extends AbstractModule implements ModuleTabInterface {
 
   /** {@inheritdoc} */
   public function getDescription() {
-    return "Adds json-ld-data to persons as described in schema.org/Person";
+    return I18N::translate("Adds json-ld-data to persons as described in schema.org/Person.");
   }
 
   /** {@inheritdoc} */

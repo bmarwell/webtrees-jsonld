@@ -2,6 +2,7 @@
 /target/
 /vendor/
 /vendor/**/.git
+/build
 
 .project
 .buildpath
