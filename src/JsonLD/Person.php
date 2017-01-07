@@ -21,118 +21,114 @@ use Fisharebest\Webtrees\Place;
 /**
  * Person for serializing into json-ld. Vars have name from schema.org.
  */
-class Person extends JsonLD
-{
-    /**
-     * @var
-     */
-    public $name;
+class Person extends JsonLD {
 
-    /**
-     * First name, personal name, forename, christian name.
-     * Middle names should go to additionalName.
-     * @var String
-     */
-    public $givenName;
+  /**
+   * @var
+   */
+  public $name;
 
-    /**
-     * Last name of this person.
-     * @var String the last name or family name.
-     */
-    public $familyName;
+  /**
+   * First name, personal name, forename, christian name.
+   * Middle names should go to additionalName.
+   * @var String
+   */
+  public $givenName;
 
-    /**
-     * Date of Birth in ISO.
-     * @var String $birthDate ;
-     */
-    public $birthDate;
+  /**
+   * Last name of this person.
+   * @var String the last name or family name.
+   */
+  public $familyName;
 
-    /**
-     * BirthPlace
-     * @var Place;
-     */
-    public $birthPlace;
+  /**
+   * Date of Birth in ISO.
+   * @var String $birthDate ;
+   */
+  public $birthDate;
 
-    /**
-     * Place of Death
-     * @var Place
-     */
-    public $deathPlace;
+  /**
+   * BirthPlace
+   * @var Place;
+   */
+  public $birthPlace;
 
-    /**
-     * Date of death.
-     * @var String $deathDate ;
-     */
-    public $deathDate;
+  /**
+   * Place of Death
+   * @var Place
+   */
+  public $deathPlace;
 
-    /**
-     * E-Mail adress as string.
-     * @var String $email
-     */
-    public $email;
+  /**
+   * Date of death.
+   * @var String $deathDate ;
+   */
+  public $deathDate;
 
-    /**
-     * @var String $url
-     */
-    public $url;
+  /**
+   * E-Mail adress as string.
+   * @var String $email
+   */
+  public $email;
 
-    /**
-     * @var array $address
-     */
-    public $address = array();
+  /**
+   * @var String $url
+   */
+  public $url;
 
-    /**
-     * U or M or F.
-     * @var string Gender
-     */
-    public $gender = "U";
+  /**
+   * @var array $address
+   */
+  public $address = array();
 
-    /**
-     * @var array
-     */
-    public $parents = array();
+  /**
+   * U or M or F.
+   * @var string Gender
+   */
+  public $gender = "U";
 
-    /**
-     * The children of this person.
-     * @var Person[] the children, regardless of their families.
-     */
-    public $children = array();
+  /**
+   * @var array
+   */
+  public $parents = array();
 
-    /**
-     * A gedcom imageObject record.
-     * @var ImageObject $image
-     */
-    public $image;
+  /**
+   * The children of this person.
+   * @var Person[] the children, regardless of their families.
+   */
+  public $children = array();
 
-    /**
-     * @param bool|FALSE $addContext
-     */
-    public function __construct($addContext = false)
-    {
-        parent::__construct("Person", $addContext);
-    }
+  /**
+   * A gedcom imageObject record.
+   * @var ImageObject $image
+   */
+  public $image;
 
-    /**
-     * @param Person $address
-     */
-    public function addAddress($address)
-    {
-        array_push($this->address, $address);
-    }
+  /**
+   * @param bool|FALSE $addContext
+   */
+  public function __construct($addContext = false) {
+    parent::__construct("Person", $addContext);
+  }
 
-    /**
-     * @param Person $parent
-     */
-    public function addParent(Person $parent)
-    {
-        array_push($this->parents, $parent);
-    }
+  /**
+   * @param Person $address
+   */
+  public function addAddress($address) {
+    array_push($this->address, $address);
+  }
 
-    /**
-     * @param Person $child
-     */
-    public function addChild(Person $child)
-    {
-        array_push($this->children, $child);
-    }
+  /**
+   * @param Person $parent
+   */
+  public function addParent(Person $parent) {
+    array_push($this->parents, $parent);
+  }
+
+  /**
+   * @param Person $child
+   */
+  public function addChild(Person $child) {
+    array_push($this->children, $child);
+  }
 }

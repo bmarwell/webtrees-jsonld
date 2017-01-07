@@ -22,51 +22,50 @@ namespace bmarwell\WebtreesModules\jsonld;
  * @author bmarwell@gmail.com
  *
  */
-class ImageObject extends JsonLD
-{
-    /**
-     * Actual bytes of the media object.
-     */
-    public $contentUrl;
+class ImageObject extends JsonLD {
 
-    /**
-     * A name for this image.
-     * @var String
-     */
-    public $name;
+  /**
+   * Actual bytes of the media object.
+   */
+  public $contentUrl;
 
-    /**
-     * Some words about this image.
-     * @var String
-     */
-    public $description;
+  /**
+   * A name for this image.
+   * @var String
+   */
+  public $name;
 
-    /**
-     * Width of the image in pixels.
-     * @var int
-     */
-    public $width;
+  /**
+   * Some words about this image.
+   * @var String
+   */
+  public $description;
 
-    /**
-     * Height of the image in pixels.
-     * @var int
-     */
-    public $height;
+  /**
+   * Width of the image in pixels.
+   * @var int
+   */
+  public $width;
 
-    /**
-     * A direct link to a thumbnail image file.
-     * @var String
-     */
-    public $thumbnailUrl;
+  /**
+   * Height of the image in pixels.
+   * @var int
+   */
+  public $height;
 
-    /**
-     * Details on the thumbnail, it is an image object itself.
-     * @var ImageObject
-     */
-    public $thumbnail;
+  /**
+   * A direct link to a thumbnail image file.
+   * @var String
+   */
+  public $thumbnailUrl;
 
-    public function __construct()
-    {
-        parent::__construct("ImageObject");
-    }
+  /**
+   * Details on the thumbnail, it is an image object itself.
+   * @var ImageObject
+   */
+  public $thumbnail;
+
+  public function __construct() {
+    parent::__construct("ImageObject");
+  }
 }

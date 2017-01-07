@@ -18,37 +18,35 @@ namespace bmarwell\WebtreesModules\jsonld;
 
 use Fisharebest\Webtrees\Log;
 
-abstract class JsonLD
-{
-    /**
-     * Creates a JsonLD-Objekt with type set to $jsonldtype.
-     * @param String $jsonldtype
-     * @param bool|FALSE $addContext
-     */
-    public function __construct($jsonldtype, $addContext = false)
-    {
-        Log::addDebugLog("creating JsonLD-object");
-        $context = "@context";
-        $type = "@type";
-        $id = "@id";
+abstract class JsonLD {
 
-        if ($addContext === true) {
-            $this->$context = "http://schema.org";
-        }
+  /**
+   * Creates a JsonLD-Objekt with type set to $jsonldtype.
+   * @param String $jsonldtype
+   * @param bool|FALSE $addContext
+   */
+  public function __construct($jsonldtype, $addContext = false) {
+    Log::addDebugLog("creating JsonLD-object");
+    $context = "@context";
+    $type = "@type";
+    $id = "@id";
 
-        $this->$type = $jsonldtype;
-        $this->$id = null;
+    if ($addContext === true) {
+      $this->$context = "http://schema.org";
     }
 
-    /**
-     * Setter for @id. Sadly, schema.org and json-ld do require an @id-field,
-     * but php of course doesn't allow this directly. You can still do set the
-     * variable name to a variable and then double-reference it, what happens just here.
-     * @param String $newId a new identifier (URI, etc.).
-     */
-    public function setId($newId)
-    {
-        $id = "@id";
-        $this->$id = $newId;
-    }
+    $this->$type = $jsonldtype;
+    $this->$id = null;
+  }
+
+  /**
+   * Setter for @id. Sadly, schema.org and json-ld do require an @id-field,
+   * but php of course doesn't allow this directly. You can still do set the
+   * variable name to a variable and then double-reference it, what happens just here.
+   * @param String $newId a new identifier (URI, etc.).
+   */
+  public function setId($newId) {
+    $id = "@id";
+    $this->$id = $newId;
+  }
 }

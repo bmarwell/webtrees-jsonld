@@ -34,155 +34,141 @@ use Fisharebest\Webtrees\Source;
  * @author bmarwell
  *
  */
-class JsonLdModule extends AbstractModule implements ModuleTabInterface
-{
-    /** @var string location of the fancy treeview module files */
-    private $directory;
+class JsonLdModule extends AbstractModule implements ModuleTabInterface {
 
-    public function __construct()
-    {
-        parent::__construct('JsonLD');
-        $this->directory = WT_MODULES_DIR . $this->getName();
-        $this->action = Filter::get('mod_action');
+  /** @var string location of the fancy treeview module files */
+  private $directory;
 
-        // register the namespaces
-        $loader = new ClassLoader();
-        $loader->addPsr4('bmarwell\\WebtreesModules\\jsonld\\', $this->directory);
-        $loader->register();
-    }
+  public function __construct() {
+    parent::__construct('JsonLD');
+    $this->directory = WT_MODULES_DIR . $this->getName();
+    $this->action = Filter::get('mod_action');
 
-    /* ****************************
-     * Module configuration
-     * ****************************/
+    // register the namespaces
+    $loader = new ClassLoader();
+    $loader->addPsr4('bmarwell\\WebtreesModules\\jsonld\\', $this->directory);
+    $loader->register();
+  }
 
-    /** {@inheritdoc} */
-    public function getName()
-    {
-        return "JsonLD";
-    }
+  /* ****************************
+   * Module configuration
+   * ****************************/
 
-    public function getTitle()
-    {
-        return "JsonLD";
-    }
+  /** {@inheritdoc} */
+  public function getName() {
+    return "JsonLD";
+  }
 
-    /** {@inheritdoc} */
-    public function getDescription()
-    {
-        return "Adds json-ld-data to persons as described in schema.org/Person";
-    }
+  public function getTitle() {
+    return "JsonLD";
+  }
 
-    /** {@inheritdoc} */
-    public function defaultAccessLevel()
-    {
-        return Auth::PRIV_PRIVATE;
-    }
+  /** {@inheritdoc} */
+  public function getDescription() {
+    return "Adds json-ld-data to persons as described in schema.org/Person";
+  }
 
-    /* ****************************
-     * Implements Tab
-     * ****************************/
+  /** {@inheritdoc} */
+  public function defaultAccessLevel() {
+    return Auth::PRIV_PRIVATE;
+  }
 
-    /**
-     * The user can re-arrange the tab order, but until they do, this
-     * is the order in which tabs are shown.
-     *
-     * @return int
-     */
-    public function defaultTabOrder()
-    {
-        return 500;
-    }
+  /* ****************************
+   * Implements Tab
+   * ****************************/
 
-    public function getTabTitle()
-    {
-        return "JsonLD";
-    }
+  /**
+   * The user can re-arrange the tab order, but until they do, this
+   * is the order in which tabs are shown.
+   *
+   * @return int
+   */
+  public function defaultTabOrder() {
+    return 500;
+  }
 
-    /**
-     * Generate the HTML content of this tab.
-     *
-     * @return string
-     */
-    public function getTabContent()
-    {
-        global $controller;
+  public function getTabTitle() {
+    return "JsonLD";
+  }
 
-        /** @var Person $person */
-        $person = new Person(true);
-        /** @var GedcomRecord|Individual|Family|Source|Repository|Media|Note $record */
-        $record = $controller->getSignificantIndividual();
+  /**
+   * Generate the HTML content of this tab.
+   *
+   * @return string
+   */
+  public function getTabContent() {
+    global $controller;
 
-        // FIXME: record may be invisible!
-        $person = JsonLDTools::fillPersonFromRecord($person, $record);
-        $person = JsonLDTools::addParentsFromRecord($person, $record);
-        $person = JsonLDTools::addChildrenFromRecord($person, $record);
+    /** @var Person $person */
+    $person = new Person(true);
+    /** @var GedcomRecord|Individual|Family|Source|Repository|Media|Note $record */
+    $record = $controller->getSignificantIndividual();
 
-        $jsonld = json_encode(
-            JsonLDTools::jsonize($person),
-            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
-        );
+    // FIXME: record may be invisible!
+    $person = JsonLDTools::fillPersonFromRecord($person, $record);
+    $person = JsonLDTools::addParentsFromRecord($person, $record);
+    $person = JsonLDTools::addChildrenFromRecord($person, $record);
 
-        return static::getScriptTags($jsonld) . static::getTags($jsonld, "pre");
-    }
+    $jsonld = json_encode(
+      JsonLDTools::jsonize($person),
+      JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+    );
 
-    private static function getScriptTags($stringenclosed)
-    {
-        return
-            '<script type="application/ld+json" id="json-ld-data">'
-            . $stringenclosed . '</script>';
-    }
+    return static::getScriptTags($jsonld) . static::getTags($jsonld, "pre");
+  }
 
-    private static function getTags($stringenclosed, $tag = 'pre')
-    {
-        return "<$tag>" . $stringenclosed . "</$tag>";
-    }
+  private static function getScriptTags($stringenclosed) {
+    return
+      '<script type="application/ld+json" id="json-ld-data">'
+      . $stringenclosed . '</script>';
+  }
 
-    /**
-     * Is this tab empty?  If so, we don't always need to display it.
-     *
-     * @return bool
-     */
-    public function hasTabContent()
-    {
-        global $controller;
+  private static function getTags($stringenclosed, $tag = 'pre') {
+    return "<$tag>" . $stringenclosed . "</$tag>";
+  }
 
-        return
-            (count($controller->record->getAllNames()) > 0) /* no names, no cookies */
-            && ($controller->record->canShowName());         /* no id */
-    }
+  /**
+   * Is this tab empty?  If so, we don't always need to display it.
+   *
+   * @return bool
+   */
+  public function hasTabContent() {
+    global $controller;
 
-    /**
-     * Can this tab load asynchronously?
-     *
-     * @return bool
-     */
-    public function canLoadAjax()
-    {
-        return false;
-    }
+    return
+      (count($controller->record->getAllNames()) > 0) /* no names, no cookies */
+      && ($controller->record->canShowName());         /* no id */
+  }
 
-    /**
-     * Any content (e.g. Javascript) that needs to be rendered before the tabs.
-     *
-     * This function is probably not needed, as there are better ways to achieve this.
-     *
-     * @return string
-     */
-    public function getPreLoadContent()
-    {
-        return '';
-    }
+  /**
+   * Can this tab load asynchronously?
+   *
+   * @return bool
+   */
+  public function canLoadAjax() {
+    return false;
+  }
 
-    /**
-     * A greyed out tab has no actual content, but may perhaps have
-     * options to create content.
-     *
-     * @return bool
-     */
-    public function isGrayedOut()
-    {
-        return false;
-    }
+  /**
+   * Any content (e.g. Javascript) that needs to be rendered before the tabs.
+   *
+   * This function is probably not needed, as there are better ways to achieve this.
+   *
+   * @return string
+   */
+  public function getPreLoadContent() {
+    return '';
+  }
+
+  /**
+   * A greyed out tab has no actual content, but may perhaps have
+   * options to create content.
+   *
+   * @return bool
+   */
+  public function isGrayedOut() {
+    return false;
+  }
 }
 
 return new JsonLdModule();

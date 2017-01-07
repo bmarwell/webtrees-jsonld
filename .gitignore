@@ -6,6 +6,8 @@
 .project
 .buildpath
 .settings
+.idea
+/.idea
 
 composer.lock
 composer.phar
