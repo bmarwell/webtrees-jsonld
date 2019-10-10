@@ -1,16 +1,16 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the webtrees-jsonld package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Benjamin Marwell <bmarwell+webtrees@gmail.com>, 2019.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: webtrees-jsonld 1.0\n"
-"Report-Msgid-Bugs-To: bmarwell@gmail.com\n"
+"Report-Msgid-Bugs-To: bmarwell+webtrees@gmail.com\n"
 "POT-Creation-Date: 2017-01-07 13:44+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Last-Translator: Benjamin Marwell <bmarwell+webtrees@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"

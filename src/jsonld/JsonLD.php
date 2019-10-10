@@ -14,7 +14,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace bmarwell\WebtreesModules\jsonld;
+namespace bmhm\WebtreesModules\jsonld;
 
 use Fisharebest\Webtrees\Log;
 
@@ -26,7 +26,6 @@ abstract class JsonLD {
    * @param bool|FALSE $addContext
    */
   public function __construct($jsonldtype, $addContext = false) {
-    Log::addDebugLog("creating JsonLD-object");
     $context = "@context";
     $type = "@type";
     $id = "@id";

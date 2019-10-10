@@ -14,33 +14,35 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace bmarwell\WebtreesModules\jsonld;
+namespace bmhm\WebtreesModules\jsonld;
 
-class jsonld_Place extends JsonLD {
+class JsonLD_Place extends JsonLD
+{
 
-  /**
-   * Name of the place
-   * @var String the name of the place.
-   */
-  public $name;
+    /**
+     * Name of the place
+     * @var String the name of the place.
+     */
+    public $name;
 
-  /**
-   * Geo-Location of the place
-   * @var String the geoLocation.
-   */
-  public $geo;
+    /**
+     * Geo-Location of the place
+     * @var String the geoLocation.
+     */
+    public $geo;
 
-  /**
-   * The address of this place.
-   * @var String the address.
-   */
-  public $address;
+    /**
+     * The address of this place.
+     * @var String the address.
+     */
+    public $address;
 
-  /**
-   * Construct using context?
-   * @param bool|FALSE $addContext
-   */
-  public function __construct($addContext = false) {
-    parent::__construct("Place", $addContext);
-  }
+    /**
+     * Construct using context?
+     * @param bool|FALSE $addContext
+     */
+    public function __construct($addContext = false)
+    {
+        parent::__construct("Place", $addContext);
+    }
 }
