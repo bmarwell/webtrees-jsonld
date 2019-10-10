@@ -12,9 +12,6 @@
 .idea
 /.idea
 
-composer.lock
-composer.phar
-
 .phpunit.result.cache
 /build/*
 

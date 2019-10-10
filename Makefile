@@ -8,18 +8,24 @@ MKDIR=mkdir -p
 
 .PHONY: clean update vendor build/jsonld
 
-all: src/jsonld/language/messages.pot update build/jsonld.tar.bz2
+all: init src/jsonld/language/messages.pot update test build/jsonld.tar.bz2
 
 clean:
 	rm -Rf build/* src/jsonld/language/messages.pot
-	rm -Rf build
+	rm -Rf build/
+	rm -Rf vendor/
+
+init: vendor
+
+test: init
+	php vendor/bin/phpunit
 
 update: src/jsonld/language/messages.pot $(MO_FILES)
 
 vendor:
-	composer.phar self-update
-	composer.phar update
-	composer.phar dump-autoload --optimize
+	php composer.phar self-update
+	php composer.phar install
+	php composer.phar dump-autoload --optimize
 
 build/jsonld: src/jsonld/language/messages.pot update
 	$(MKDIR) build
@@ -29,7 +35,7 @@ build/jsonld.tar.bz2: build/jsonld
 	tar cvjf $@ $^
 
 src/jsonld/language/messages.pot: $(LANGUAGE_SRC)
-	echo $^ | xargs xgettext --package-name="webtrees-jsonld" --package-version=1.0 --msgid-bugs-address=bmarwell@gmail.com --no-wrap --language=PHP --add-comments=I18N --from-code=utf-8 --keyword=translate:1 --keyword=translateContext:1c,2 --keyword=plural:1,2 --output=$@
+	echo $^ | xargs xgettext --package-name="webtrees-jsonld" --package-version=2.0 --msgid-bugs-address=bmarwell+webtrees@gmail.com --no-wrap --language=PHP --add-comments=I18N --from-code=utf-8 --keyword=translate:1 --keyword=translateContext:1c,2 --keyword=plural:1,2 --output=$@
 
 $(PO_FILES): src/jsonld/language/messages.pot
 	msgmerge --no-wrap --sort-output --no-fuzzy-matching --output=$@ $@ $<
