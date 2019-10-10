@@ -20,6 +20,12 @@ init: vendor
 test: init
 	php vendor/bin/phpunit
 
+integationtest-pre:
+	docker-compose --file tests/integration/docker-compose.yml up --detach
+
+integrationtest: init update integationtest-pre
+	docker-compose --file tests/integration/docker-compose.yml down
+
 update: src/jsonld/language/messages.pot $(MO_FILES)
 
 vendor:

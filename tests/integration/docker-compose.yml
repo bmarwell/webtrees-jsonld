@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:latest
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: webtrees
+      MYSQL_USER: webtrees
+      MYSQL_PASSWORD: webtrees
+      MYSQL_RANDOM_ROOT_PASSWORD: "true"
+
+  web:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ../../vendor/fisharebest/webtrees:/webtrees
+      - ../../build/jsonld:/webtrees/modules_v4/jsonld
+      - ./nginx-webtrees.conf:/etc/nginx/conf.d/site.conf
+    depends_on:
+      - "app"
+
+
+  app:
+    image: php:7-fpm
+    depends_on:
+      - "db"
