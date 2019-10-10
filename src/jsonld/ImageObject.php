@@ -15,12 +15,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace bmarwell\WebtreesModules\jsonld;
+namespace bmhm\WebtreesModules\jsonld;
+
+use bmhm\WebtreesModules\jsonld\JsonLD;
 
 /**
  * Image object which represents http://schema.org/ImageObject.
- * @author bmarwell@gmail.com
- *
  */
 class ImageObject extends JsonLD {
 

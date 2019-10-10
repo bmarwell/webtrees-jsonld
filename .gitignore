@@ -3,6 +3,8 @@
 /vendor/
 /vendor/**/.git
 /build
+/.vscode
+.vscode/*
 
 .project
 .buildpath
@@ -12,3 +14,8 @@
 
 composer.lock
 composer.phar
+
+.phpunit.result.cache
+/build/*
+
+cov.xml

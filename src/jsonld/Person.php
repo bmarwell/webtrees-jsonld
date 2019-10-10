@@ -14,7 +14,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace bmarwell\WebtreesModules\jsonld;
+namespace bmhm\WebtreesModules\jsonld;
 
 use Fisharebest\Webtrees\Place;
 
