@@ -17,8 +17,6 @@
 
 namespace bmhm\WebtreesModules\jsonld;
 
-use bmhm\WebtreesModules\jsonld\JsonLD;
-
 /**
  * Image object which represents http://schema.org/ImageObject.
  */

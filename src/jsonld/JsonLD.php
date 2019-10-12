@@ -16,8 +16,6 @@
 
 namespace bmhm\WebtreesModules\jsonld;
 
-use Fisharebest\Webtrees\Log;
-
 abstract class JsonLD {
 
   /**

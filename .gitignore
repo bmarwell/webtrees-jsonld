@@ -16,3 +16,9 @@
 /build/*
 
 cov.xml
+
+./tests/integration/nginx-webtrees/scripts/*
+./tests/integration/nginx-webtrees/webtrees/*
+./tests/integration/nginx-webtrees/*
+tests/integration/nginx-webtrees/scripts/*
+tests/integration/nginx-webtrees/scripts

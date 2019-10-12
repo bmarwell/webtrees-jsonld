@@ -18,112 +18,89 @@ namespace bmhm\WebtreesModules\jsonld;
 
 use Composer\Autoload\ClassLoader;
 use Fisharebest\Webtrees\Auth;
-use Fisharebest\Webtrees\Family;
 use Fisharebest\Webtrees\Filter;
-use Fisharebest\Webtrees\GedcomRecord;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Individual;
-use Fisharebest\Webtrees\Media;
 use Fisharebest\Webtrees\Module\AbstractModule;
+use Fisharebest\Webtrees\Module\ModuleCustomInterface;
+use Fisharebest\Webtrees\Module\ModuleCustomTrait;
 use Fisharebest\Webtrees\Module\ModuleTabInterface;
-use Fisharebest\Webtrees\Note;
-use Fisharebest\Webtrees\Repository;
-use Fisharebest\Webtrees\Source;
+use Fisharebest\Webtrees\Module\ModuleTabTrait;
+use Fisharebest\Webtrees\Tree;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * Class implementing application/ld+json output.
  * @author bmhm
  *
  */
-class JsonLdModule extends AbstractModule implements ModuleTabInterface, Middleware
+return new class extends AbstractModule implements ModuleCustomInterface, ModuleTabInterface, MiddlewareInterface
 {
-
-    /** @var string location of the fancy treeview module files */
-    private $directory;
-
-    public function __construct()
-    {
-        parent::__construct('JsonLD');
-        $this->directory = WT_MODULES_DIR . $this->getName();
-        $this->action = Filter::get('mod_action');
-
-        // register the namespaces
-        $loader = new ClassLoader();
-        $loader->addPsr4('bmhm\\WebtreesModules\\jsonld\\', $this->directory);
-        $loader->addPsr4('bmhm\\WebtreesModules\\', $this->directory+"/src/");
-        $loader->register();
-    }
+    use ModuleCustomTrait;
+    use ModuleTabTrait;
 
     /* ****************************
      * Module configuration
      * ****************************/
 
-    /** {@inheritdoc} */
-    public function getName()
-    {
-        return "JsonLD";
-    }
-
-    public function getTitle()
+    public function title(): string
     {
         return "JsonLD";
     }
 
     /** {@inheritdoc} */
-    public function getDescription()
+    public function description(): string
     {
         return I18N::translate("Adds json-ld-data to persons as described in schema.org/Person.");
     }
 
-    /** {@inheritdoc} */
-    public function defaultAccessLevel()
+    /* ****************************
+     * Module custom interface
+     * ****************************/
+
+    public function customModuleAuthorName(): string
     {
-        return Auth::PRIV_PRIVATE;
+        return 'bmhm';
     }
+
+    public function customModuleVersion(): string
+    {
+        return '2.0.0';
+    }
+
+    public function customModuleSupportUrl(): string
+    {
+        return 'https://github.com/bmhm/webtrees-jsonld';
+    }
+
 
     /* ****************************
      * Implements Tab
      * ****************************/
 
-    /**
-     * The user can re-arrange the tab order, but until they do, this
-     * is the order in which tabs are shown.
-     *
-     * @return int
-     */
-    public function defaultTabOrder()
+    public function tabTitle(): string
+    {
+        return "Json-LD";
+    }
+
+    public function defaultTabOrder(): int
     {
         return 500;
     }
 
-    public function getTabTitle()
+    public function hasTabContent(Individual $individual): bool
     {
-        return "JsonLD";
+        return
+            (count($individual->getAllNames()) > 0) /* no names, no cookies */
+            && ($individual->canShowName()); /* no id */
     }
 
-    /**
-     * Generate the HTML content of this tab.
-     *
-     * @return string
-     */
-    public function getTabContent()
+    public function getTabContent(Individual $individual): string
     {
-        global $controller;
-
-        /** @var Person $person */
-        $person = new Person(true);
-        /** @var GedcomRecord|Individual|Family|Source|Repository|Media|Note $record */
-        $record = $controller->getSignificantIndividual();
-
-        // FIXME: record may be invisible!
-        $person = JsonLDTools::fillPersonFromRecord($person, $record);
-        $person = JsonLDTools::addParentsFromRecord($person, $record);
-        $person = JsonLDTools::addChildrenFromRecord($person, $record);
-
-        $jsonld = json_encode(
-            JsonLDTools::jsonize($person),
-            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
-        );
+        $jsonld = $this->createJsonLdForIndividual($individual);
 
         return static::getScriptTags($jsonld) . static::getTags($jsonld, "pre");
     }
@@ -140,52 +117,82 @@ class JsonLdModule extends AbstractModule implements ModuleTabInterface, Middlew
         return "<$tag>" . $stringenclosed . "</$tag>";
     }
 
-    /**
-     * Is this tab empty?  If so, we don't always need to display it.
-     *
-     * @return bool
-     */
-    public function hasTabContent()
+    public function canLoadAjax(): bool
     {
-        global $controller;
-
-        return
-        (count($controller->record->getAllNames()) > 0) /* no names, no cookies */
-        && ($controller->record->canShowName()); /* no id */
+        return true;
     }
 
-    /**
-     * Can this tab load asynchronously?
-     *
-     * @return bool
-     */
-    public function canLoadAjax()
+    public function isGrayedOut(Individual $individual): bool
     {
         return false;
     }
 
+    /* *****************
+     * Helper methods
+     ********************/
+
     /**
-     * Any content (e.g. Javascript) that needs to be rendered before the tabs.
-     *
-     * This function is probably not needed, as there are better ways to achieve this.
-     *
-     * @return string
+     * @param Individual $individual
+     * @return false|string
      */
-    public function getPreLoadContent()
+    public function createJsonLdForIndividual(Individual $individual)
     {
-        return '';
+        /** @var Person $person */
+        $person = new Person(true);
+
+        // FIXME: record may be invisible!
+        $person = JsonLDTools::fillPersonFromRecord($person, $individual);
+        $person = JsonLDTools::addParentsFromRecord($person, $individual);
+        $person = JsonLDTools::addChildrenFromRecord($person, $individual);
+
+        $jsonld = json_encode(
+            JsonLDTools::jsonize($person),
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+        );
+        return $jsonld;
     }
 
     /**
-     * A greyed out tab has no actual content, but may perhaps have
-     * options to create content.
-     *
-     * @return bool
+     * @param ServerRequestInterface $request
+     * @return Individual|null
      */
-    public function isGrayedOut()
+    public function getIndividualFromCurrentTree(ServerRequestInterface $request)
     {
-        return false;
-    }
-}
+        // TODO: this duplicates logic from both router/web.php and IndividualController.
+        //  - remove when solved: https://github.com/fisharebest/webtrees/issues/2615
+        $tree = app(Tree::class);
+        $xref = $request->getQueryParams()['xref'];
+        $individual = Individual::getInstance($xref, $tree);
 
-return new JsonLdModule();
+        return $individual;
+    }
+
+    /* ****************************
+     * Implements MiddlewareInterface
+     * ****************************/
+
+    /**
+     * Process an incoming server request.
+     *
+     * Processes an incoming server request in order to produce a response.
+     * If unable to produce the response itself, it may delegate to the provided
+     * request handler to do so.
+     */
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    {
+        $acceptHeader = $request->getHeader("accept");
+        if (!in_array("application/ld+json", $acceptHeader)) {
+            // pass through.
+            return $handler->handle($request);
+        }
+
+        $individual = $this->getIndividualFromCurrentTree($request);
+
+        return response($this->createJsonLdForIndividual($individual), 200, array(
+            "Content-Type" => "application/ld+json"
+        ));
+    }
+
+
+};
+

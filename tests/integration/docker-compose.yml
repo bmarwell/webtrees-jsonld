@@ -1,4 +1,4 @@
-version: '3'
+version: '3.7'
 
 services:
   db:
@@ -9,20 +9,68 @@ services:
       MYSQL_USER: webtrees
       MYSQL_PASSWORD: webtrees
       MYSQL_RANDOM_ROOT_PASSWORD: "true"
-
-  web:
-    image: nginx:latest
+    networks:
+      - backend
+      - frontend
     ports:
-      - "8080:80"
-    volumes:
-      - ../../vendor/fisharebest/webtrees:/webtrees
-      - ../../build/jsonld:/webtrees/modules_v4/jsonld
-      - ./nginx-webtrees.conf:/etc/nginx/conf.d/site.conf
-    depends_on:
-      - "app"
-
+      - "3306"
 
   app:
-    image: php:7-fpm
+    build: php-fpm
+    links:
+      - "db"
     depends_on:
       - "db"
+    ports:
+      - "9000"
+    networks:
+      - backend
+    volumes:
+      - type: volume
+        source: webtrees
+        target: /webtrees
+        read_only: false
+        volume:
+          nocopy: true
+      - "wt_data:/wt_data"
+
+
+  web:
+    build: nginx-webtrees
+    ports:
+      - "8080:80"
+    links:
+      - "app"
+    depends_on:
+      - "webtrees-loader"
+    networks:
+      - backend
+      - frontend
+    volumes:
+      - type: volume
+        source: webtrees
+        target: /webtrees
+        read_only: true
+      - type: bind
+        source: "../../build/jsonld"
+        target: "/modules_v4/jsonld"
+      - "wt_data:/wt_data"
+
+  webtrees-loader:
+    build: ./loader
+    volumes:
+      - webtrees:/webtrees
+      - wt_data:/data
+    healthcheck:
+      test: ["CMD", "ls", "/modules_v4"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+networks:
+  frontend:
+  backend:
+
+volumes:
+  webtrees:
+  wt_data:

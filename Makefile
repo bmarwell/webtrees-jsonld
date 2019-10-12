@@ -14,17 +14,22 @@ clean:
 	rm -Rf build/* src/jsonld/language/messages.pot
 	rm -Rf build/
 	rm -Rf vendor/
+	rm -Rf ./tests/integration/nginx-webtrees/scripts
 
 init: vendor
 
 test: init
 	php vendor/bin/phpunit
 
-integationtest-pre:
-	docker-compose --file tests/integration/docker-compose.yml up --detach
+integrationtest-pre:
+	cp -r ./tests/integration/scripts ./tests/integration/nginx-webtrees/
+	docker-compose --project-name "webtrees-integration" --file tests/integration/docker-compose.yml build --no-cache
+	docker-compose --project-name "webtrees-integration" --file tests/integration/docker-compose.yml up --detach --force-recreate
+	sleep 10 && docker-compose --project-name "webtrees-integration" --file tests/integration/docker-compose.yml exec web bash /scripts/setup.sh
 
-integrationtest: init update integationtest-pre
-	docker-compose --file tests/integration/docker-compose.yml down
+integrationtest: init update build/jsonld integrationtest-pre
+	./tests/integration/run.sh || echo "see error."
+	#docker-compose --project-name "webtrees-integration" --file tests/integration/docker-compose.yml down
 
 update: src/jsonld/language/messages.pot $(MO_FILES)
 
@@ -36,6 +41,7 @@ vendor:
 build/jsonld: src/jsonld/language/messages.pot update
 	$(MKDIR) build
 	cp -R src/jsonld/ build/
+	cp module.php build/jsonld/
 
 build/jsonld.tar.bz2: build/jsonld
 	tar cvjf $@ $^

@@ -48,7 +48,7 @@ class JsonLDTools
         $returnobj = static::emptyObject($returnobj);
 
         /* strip empty key/value-pairs */
-        $returnobj = (object) array_filter((array) $returnobj);
+        $returnobj = (object)array_filter((array)$returnobj);
 
         return $returnobj;
     }
@@ -98,62 +98,62 @@ class JsonLDTools
     /**
      * For a given person object (re-)set the fields with sane
      * values from a gedcom-record.
-     * @var Person $person
-     * @var GedcomRecord|Individual|Family|Source|Repository|Media|Note $record
      * @return Person
+     * @var Individual $individual
+     * @var Person $person
      */
-    public static function fillPersonFromRecord($person, $record)
+    public static function fillPersonFromRecord($person, $individual)
     {
         /* check if record exists */
-        if (empty($record)) {
+        if (empty($individual)) {
             return $person;
         }
 
-        $person->name = $record->getAllNames()[$record->getPrimaryName()]['fullNN'];
-        $person->givenName = $record->getAllNames()[$record->getPrimaryName()]['givn'];
-        $person->familyName = $record->getAllNames()[$record->getPrimaryName()]['surn'];
+        $person->name = $individual->getAllNames()[$individual->getPrimaryName()]['fullNN'];
+        $person->givenName = $individual->getAllNames()[$individual->getPrimaryName()]['givn'];
+        $person->familyName = $individual->getAllNames()[$individual->getPrimaryName()]['surn'];
         //         $person->familyName =  $record->getAllNames()[$record->getPrimaryName()]['surname'];
-        $person->gender = $record->sex();
-        $person->setId($record->url());
+        $person->gender = $individual->sex();
+        $person->setId($individual->url());
 
         /* Dates */
         // XXX: match beginning and end of string, doesn't seem to work.
-        $birthdate = $record->getBirthDate()->display(false, '%Y-%m-%d', false);
+        $birthdate = $individual->getBirthDate()->display(false, '%Y-%m-%d', false);
         if (preg_match('/[0-9]{4}-[0-9]{2}-[0-9]{2}/', $birthdate) === 1) {
             $person->birthDate = strip_tags($birthdate);
         } elseif (preg_match('/between/', $birthdate)) {
-            $person->birthDate = strip_tags($record->getBirthDate()->maximumDate()->format('%Y') .
-                '/' . $record->getBirthDate()->maximumDate()->format('%Y'));
+            $person->birthDate = strip_tags($individual->getBirthDate()->maximumDate()->format('%Y') .
+                '/' . $individual->getBirthDate()->maximumDate()->format('%Y'));
         }
 
-        $deathDate = $record->getDeathDate()->display(false, '%Y-%m-%d', false);
+        $deathDate = $individual->getDeathDate()->display(false, '%Y-%m-%d', false);
         if (preg_match('/[0-9]{4}-[0-9][0-9]-[0-9][0-9]/', $deathDate) === 1) {
             $person->deathDate = strip_tags($deathDate);
         } elseif (preg_match('/between/', $deathDate)) {
-            $person->deathDate = strip_tags($record->getDeathDate()->maximumDate()->format('%Y') .
-                '/' . $record->getDeathDate()->maximumDate());
+            $person->deathDate = strip_tags($individual->getDeathDate()->maximumDate()->format('%Y') .
+                '/' . $individual->getDeathDate()->maximumDate());
         }
 
         /* add highlighted image */
-        if ($record->findHighlightedMediaFile()) {
-            $person->image = static::createMediaObject($record->findHighlightedMediaFile());
+        if ($individual->findHighlightedMediaFile()) {
+            $person->image = static::createMediaObject($individual->findHighlightedMediaFile());
             $person->image = static::emptyObject($person->image);
         }
 
         // TODO: Get place object.
-        if ($record->getBirthPlace()->url()) {
+        if ($individual->getBirthPlace()->url()) {
             echo "found";
             $person->birthPlace = new JsonLD_Place();
-            $person->birthPlace->name = $record->getBirthPlace();
-            $person->birthPlace->setId($record->getBirthPlace());
+            $person->birthPlace->name = $individual->getBirthPlace();
+            $person->birthPlace->setId($individual->getBirthPlace());
             $person->birthPlace = static::emptyObject($person->birthPlace);
         }
 
-        if ($record->getDeathPlace()->url()) {
+        if ($individual->getDeathPlace()->url()) {
             echo "found";
             $person->deathPlace = new JsonLD_Place();
-            $person->deathPlace->name = $record->getDeathPlace();
-            $person->deathPlace->setId($record->getDeathPlace());
+            $person->deathPlace->name = $individual->getDeathPlace();
+            $person->deathPlace->setId($individual->getDeathPlace());
             $person->deathPlace = static::emptyObject($person->deathPlace);
         }
 
@@ -198,9 +198,9 @@ class JsonLDTools
 
     /**
      * Adds parents to a person, taken from the supplied record.
-     * @var Person $person the person where parents should be added to.
-     * @var GedcomRecord|Individual $record the person's gedcom record.
      * @return Person
+     * @var GedcomRecord|Individual $record the person's gedcom record.
+     * @var Person $person the person where parents should be added to.
      */
     public static function addParentsFromRecord($person, $record)
     {
