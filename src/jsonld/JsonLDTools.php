@@ -247,15 +247,15 @@ class JsonLDTools
             return $person;
         }
 
-        if (empty($record->getSpouseFamilies())) {
+        if (empty($record->spouseFamilies())) {
             return $person;
         }
 
         /** @var Individual[] $children */
         $children = array();
         /* we need a unique array first */
-        foreach ($record->getSpouseFamilies() as $fam) {
-            foreach ($fam->getChildren() as $child) {
+        foreach ($record->spouseFamilies() as $fam) {
+            foreach ($fam->children() as $child) {
                 $children[$child->getXref()] = $child;
             }
         }
@@ -264,6 +264,7 @@ class JsonLDTools
             if (!$child->canShow()) {
                 continue;
             }
+            Auth::checkIndividualAccess($child);
             $childPerson = new Person();
             $childPerson = static::fillPersonFromRecord($childPerson, $child);
             $person->addChild($childPerson);
