@@ -16,9 +16,7 @@
 
 namespace bmhm\WebtreesModules\jsonld;
 
-use Composer\Autoload\ClassLoader;
 use Fisharebest\Webtrees\Auth;
-use Fisharebest\Webtrees\Filter;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Module\AbstractModule;
@@ -31,6 +29,24 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+
+spl_autoload_register(function ($class) {
+    $cwd = dirname(__FILE__);
+    $file = str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
+
+    if (file_exists($file)) {
+        require $file;
+        return true;
+    }
+
+    $localFile = $cwd . '/' . str_replace('bmhm/WebtreesModules', 'src', $file);
+    if (file_exists($localFile)) {
+        require $localFile;
+        return true;
+    }
+
+    return false;
+});
 
 /**
  * Class implementing application/ld+json output.
@@ -76,7 +92,6 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
         return 'https://github.com/bmhm/webtrees-jsonld';
     }
 
-
     /* ****************************
      * Implements Tab
      * ****************************/
@@ -94,8 +109,8 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
     public function hasTabContent(Individual $individual): bool
     {
         return
-            (count($individual->getAllNames()) > 0) /* no names, no cookies */
-            && ($individual->canShowName()); /* no id */
+        (count($individual->getAllNames()) > 0) /* no names, no cookies */
+        && ($individual->canShowName()); /* no id */
     }
 
     public function getTabContent(Individual $individual): string
@@ -189,10 +204,8 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
         $individual = $this->getIndividualFromCurrentTree($request);
 
         return response($this->createJsonLdForIndividual($individual), 200, array(
-            "Content-Type" => "application/ld+json"
+            "Content-Type" => "application/ld+json",
         ));
     }
 
-
 };
-

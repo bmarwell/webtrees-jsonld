@@ -48,7 +48,7 @@ class JsonLDTools
         $returnobj = static::emptyObject($returnobj);
 
         /* strip empty key/value-pairs */
-        $returnobj = (object)array_filter((array)$returnobj);
+        $returnobj = (object) array_filter((array) $returnobj);
 
         return $returnobj;
     }
@@ -142,7 +142,6 @@ class JsonLDTools
 
         // TODO: Get place object.
         if ($individual->getBirthPlace()->url()) {
-            echo "found";
             $person->birthPlace = new JsonLD_Place();
             $person->birthPlace->name = $individual->getBirthPlace();
             $person->birthPlace->setId($individual->getBirthPlace());
@@ -150,7 +149,6 @@ class JsonLDTools
         }
 
         if ($individual->getDeathPlace()->url()) {
-            echo "found";
             $person->deathPlace = new JsonLD_Place();
             $person->deathPlace->name = $individual->getDeathPlace();
             $person->deathPlace->setId($individual->getDeathPlace());
