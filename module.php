@@ -174,10 +174,8 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
      */
     public function getIndividualFromCurrentTree(ServerRequestInterface $request)
     {
-        // TODO: this duplicates logic from both router/web.php and IndividualController.
-        //  - remove when solved: https://github.com/fisharebest/webtrees/issues/2615
-        $tree = app(Tree::class);
-        $xref = $request->getQueryParams()['xref'];
+        $tree = $request->getAttribute('tree');
+        $xref = $request->getAttribute('xref');
         $individual = Individual::getInstance($xref, $tree);
         Auth::checkIndividualAccess($individual);
 
