@@ -206,26 +206,30 @@ class JsonLDTools
             return $person;
         }
 
-        if (empty($record->getPrimaryChildFamily())) {
+        if (empty($record->primaryChildFamily())) {
             return $person;
         }
 
-        $parentFamily = $record->getPrimaryChildFamily();
+        $parentFamily = $record->primaryChildFamily();
 
         if (!$parentFamily) {
             /* No family, no parents to be added */
             return $person;
         }
 
-        if ($parentFamily->getHusband()) {
+        $husbandInd = $parentFamily->husband();
+        if ($husbandInd && $husbandInd->canShow()) {
+            Auth::checkIndividualAccess($husbandInd);
             $husband = new Person();
-            $husband = static::fillPersonFromRecord($husband, $parentFamily->getHusband());
+            $husband = static::fillPersonFromRecord($husband, $husbandInd);
             $person->addParent($husband);
         }
 
-        if ($parentFamily->getWife()) {
+        $wifeInd = $parentFamily->wife();
+        if ($wifeInd && $wifeInd->canShow()) {
+            Auth::checkIndividualAccess($wifeInd);
             $wife = new Person();
-            $wife = static::fillPersonFromRecord($wife, $parentFamily->getWife());
+            $wife = static::fillPersonFromRecord($wife, $wifeInd);
             $person->addParent($wife);
         }
 

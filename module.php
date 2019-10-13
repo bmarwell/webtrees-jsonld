@@ -115,6 +115,7 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
 
     public function getTabContent(Individual $individual): string
     {
+        Auth::checkIndividualAccess($individual);
         $jsonld = $this->createJsonLdForIndividual($individual);
 
         return static::getScriptTags($jsonld) . static::getTags($jsonld, "pre");
@@ -178,6 +179,7 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
         $tree = app(Tree::class);
         $xref = $request->getQueryParams()['xref'];
         $individual = Individual::getInstance($xref, $tree);
+        Auth::checkIndividualAccess($individual);
 
         return $individual;
     }
