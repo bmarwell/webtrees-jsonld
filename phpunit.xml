@@ -1,25 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <phpunit
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.5/phpunit.xsd"
-
+  xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
   bootstrap="vendor/autoload.php"
   colors="true"
-  convertErrorsToExceptions="true"
-  convertNoticesToExceptions="true"
-  convertWarningsToExceptions="true"
-
-  processIsolation="false"
-  stopOnError="false"
-  stopOnFailure="false"
-  stopOnIncomplete="false"
-  stopOnSkipped="false"
-  stopOnRisky="false"
+  cacheDirectory=".phpunit.cache"
+  displayDetailsOnTestsThatTriggerWarnings="true"
   >
 
   <php>
-    <!-- <includePath>./vendor/fisharebest/webtrees/includes</includePath> -->
     <const name="WT_MODULES_DIR" value="src"/>
-    <const name="WT_REGEX_XREF" value="[A-Za-z0-9:_-]+" />
+    <const name="WT_REGEX_XREF" value="[A-Za-z0-9:_-]+"/>
   </php>
 
   <testsuites>
@@ -28,13 +19,15 @@
     </testsuite>
   </testsuites>
 
-  <filter>
-    <whitelist processUncoveredFilesFromWhitelist="true">
-        <directory suffix=".php">src</directory>
-    </whitelist>
-  </filter>
+  <source>
+    <include>
+      <directory suffix=".php">src</directory>
+    </include>
+  </source>
 
-  <logging>
-    <log type="coverage-clover" target="cov.xml"/>
-  </logging>
+  <coverage>
+    <report>
+      <clover outputFile="coverage.xml"/>
+    </report>
+  </coverage>
 </phpunit>
