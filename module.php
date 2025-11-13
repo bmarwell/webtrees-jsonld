@@ -185,6 +185,19 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
     /**
      * Process an incoming server request.
      *
+     * Implements HTTP content negotiation for JSON-LD data.
+     * When Accept header includes "application/ld+json", returns pure JSON-LD.
+     * For normal HTML requests, adds a Link header to advertise JSON-LD availability.
+     *
+     * Future configuration possibilities (not yet implemented):
+     * - Enable/disable Link header in HTML responses
+     * - Configure which record types support JSON-LD (individuals, families, places, etc.)
+     * - Control JSON-LD depth (e.g., include/exclude parents, children, spouses)
+     * - Add support for JSON-LD frames for custom data structures
+     * - Configure caching headers for JSON-LD responses
+     * - Support for other JSON-LD media types (application/json with @context)
+     * - Rate limiting for JSON-LD endpoint to prevent abuse
+     *
      * Processes an incoming server request in order to produce a response.
      * If unable to produce the response itself, it may delegate to the provided
      * request handler to do so.
