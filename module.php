@@ -19,6 +19,7 @@ use Fisharebest\Webtrees\Module\ModuleCustomInterface;
 use Fisharebest\Webtrees\Module\ModuleCustomTrait;
 use Fisharebest\Webtrees\Module\ModuleTabInterface;
 use Fisharebest\Webtrees\Module\ModuleTabTrait;
+use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -171,7 +172,7 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
     {
         $tree = $request->getAttribute('tree');
         $xref = $request->getAttribute('xref');
-        $individual = Individual::getInstance($xref, $tree);
+        $individual = Registry::individualFactory()->make($xref, $tree);
         Auth::checkIndividualAccess($individual);
 
         return $individual;
