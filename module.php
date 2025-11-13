@@ -192,15 +192,27 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $acceptHeader = $request->getHeader("accept");
-        if (!in_array("application/ld+json", $acceptHeader)) {
-            // pass through.
-            return $handler->handle($request);
+        $requestAcceptsJsonLd = false;
+        
+        // Check if application/ld+json is in the Accept header
+        foreach ($acceptHeader as $value) {
+            if (str_contains($value, "application/ld+json")) {
+                $requestAcceptsJsonLd = true;
+                break;
+            }
+        }
+        
+        if (!$requestAcceptsJsonLd) {
+            // For normal HTML responses, add Link header to advertise JSON-LD availability
+            $response = $handler->handle($request);
+            $currentUrl = $request->getUri();
+            return $response->withHeader("Link", '<' . $currentUrl . '>; rel="alternate"; type="application/ld+json"');
         }
 
         $individual = $this->getIndividualFromCurrentTree($request);
 
         return response($this->createJsonLdForIndividual($individual), 200, array(
-            "Content-Type" => "application/ld+json",
+            "Content-Type" => "application/ld+json; charset=utf-8",
         ));
     }
 

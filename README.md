@@ -31,7 +31,28 @@ and paste the url of any public individual.
 You should also see a new tab on individuals, containing the hidden source code and also
 the human-readable version inside a html pre-tag.
 
-If you use curl, you can do sth. like this:
+#### Content Negotiation with Accept Header
+
+This module supports HTTP content negotiation. When you request an individual page with the 
+`Accept: application/ld+json` header, the module will return pure JSON-LD data without any HTML.
+
+Example using curl:
+
+```shell
+# Get JSON-LD data directly using Accept header
+curl -H "Accept: application/ld+json" "http://path.to/webtrees/individual.php?pid=I1&ged=AllGED"
+```
+
+The response will have:
+- `Content-Type: application/ld+json; charset=utf-8` header
+- Pure JSON-LD data (no HTML wrapper)
+
+For normal HTML requests, the module adds a `Link` header to advertise that JSON-LD is available:
+```
+Link: <http://path.to/webtrees/individual.php?pid=I1&ged=AllGED>; rel="alternate"; type="application/ld+json"
+```
+
+You can also extract JSON-LD from the embedded HTML script tag:
 
 ```shell
 curl -so - "http://​path.to/​webtrees/​individual.​php?​pid=I1&​ged=AllGED" | \
