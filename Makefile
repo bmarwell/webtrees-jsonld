@@ -6,7 +6,7 @@ PO_FILES=$(wildcard $(LANGUAGE_DIR)/*.po)
 SHELL=bash
 MKDIR=mkdir -p
 
-.PHONY: clean update vendor build/jsonld
+.PHONY: clean update vendor build/jsonld test unittest integrationtest-testcontainers
 
 all: init src/jsonld/language/messages.pot update test build/jsonld.tar.bz2
 
@@ -20,6 +20,12 @@ init: vendor
 
 test: init
 	php vendor/bin/phpunit
+
+unittest: init
+	php vendor/bin/phpunit --testsuite="Unit Tests"
+
+integrationtest-testcontainers: init
+	php vendor/bin/phpunit --testsuite="Integration Tests"
 
 integrationtest-pre:
 	cp -r ./tests/integration/scripts ./tests/integration/nginx-webtrees/

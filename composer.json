@@ -16,7 +16,8 @@
   },
   "require-dev": {
     "phpunit/phpunit": "^10.5",
-    "fisharebest/webtrees": "^2.2"
+    "fisharebest/webtrees": "^2.2",
+    "testcontainers/testcontainers": "^1.0"
   },
   "autoload": {
     "psr-4": {
