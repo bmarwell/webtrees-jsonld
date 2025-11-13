@@ -1,17 +1,12 @@
 <?php
 /**
  * webtrees json-ld: online genealogy json-ld-module.
- * Copyright (C) 2015 webtrees development team
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (C) 2015-2025 webtrees development team
+ *
+ * SPDX-License-Identifier: Apache-2.0 OR EUPL-1.2
+ *
+ * This program is dual-licensed under Apache-2.0 OR EUPL-1.2.
+ * See LICENSE file for details.
  */
 
 namespace bmhm\WebtreesModules\jsonld;
@@ -24,6 +19,7 @@ use Fisharebest\Webtrees\Module\ModuleCustomInterface;
 use Fisharebest\Webtrees\Module\ModuleCustomTrait;
 use Fisharebest\Webtrees\Module\ModuleTabInterface;
 use Fisharebest\Webtrees\Module\ModuleTabTrait;
+use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -176,7 +172,7 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
     {
         $tree = $request->getAttribute('tree');
         $xref = $request->getAttribute('xref');
-        $individual = Individual::getInstance($xref, $tree);
+        $individual = Registry::individualFactory()->make($xref, $tree);
         Auth::checkIndividualAccess($individual);
 
         return $individual;

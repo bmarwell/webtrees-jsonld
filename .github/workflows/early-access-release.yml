@@ -1,0 +1,113 @@
+name: Early Access Release
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build and Create Early Access Release
+    runs-on: ubuntu-latest
+    # Only run if CI workflow succeeded
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, gettext
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gettext zstd
+
+      - name: Compile translations
+        run: |
+          # Compile all .po files to .mo files
+          for po_file in src/language/*.po; do
+            if [ -f "$po_file" ]; then
+              mo_file="${po_file%.po}.mo"
+              msgfmt --output="$mo_file" "$po_file"
+              echo "Compiled $po_file to $mo_file"
+            fi
+          done
+
+      - name: Create module directory structure
+        run: |
+          mkdir -p build/modules_v4/jsonld
+
+          # Copy module files
+          cp module.php build/modules_v4/jsonld/
+          cp -r src build/modules_v4/jsonld/
+
+          # Verify .mo files were copied
+          echo "Contents of build directory:"
+          find build -type f -name "*.mo" -o -name "*.po"
+
+      - name: Create version file
+        run: |
+          echo "Early Access Build - $(date -u '+%Y-%m-%d %H:%M:%S UTC')" > build/modules_v4/jsonld/VERSION.txt
+          echo "Commit: ${{ github.sha }}" >> build/modules_v4/jsonld/VERSION.txt
+
+      - name: Create archives and checksums
+        run: |
+          cd build
+          tar czf ../webtrees-jsonld-early-access.tar.gz modules_v4/
+          zip -r ../webtrees-jsonld-early-access.zip modules_v4/
+          tar -I zstd -cf ../webtrees-jsonld-early-access.tar.zst modules_v4/
+          cd ..
+          sha256sum webtrees-jsonld-early-access.tar.gz > checksums.txt
+          sha256sum webtrees-jsonld-early-access.zip >> checksums.txt
+          sha256sum webtrees-jsonld-early-access.tar.zst >> checksums.txt
+
+      - name: Create or Update Early Access Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: early-access
+          name: Early Access Build
+          body: |
+            ## Early Access Release
+
+            This is an automatically generated pre-release build from the latest commit on the main branch.
+
+            **⚠️ This is a development build and may contain bugs or incomplete features.**
+
+            ### Installation
+
+            1. Download one of the archive files below
+            2. Extract to your webtrees installation directory (the archive will create a `modules_v4/jsonld` folder)
+            3. Go to Control Panel → Module Administration and enable the JsonLD module
+
+            ### What's Included
+
+            - ✅ Compiled German translation files (.mo)
+            - ✅ All source files
+            - ✅ Ready to use - no compilation needed
+
+            **Build Information:**
+            - Commit: ${{ github.sha }}
+            - Built: ${{ github.event.head_commit.timestamp }}
+            - Branch: ${{ github.ref_name }}
+
+            ---
+
+            💡 **Tip:** For stable releases, please use the [regular releases](https://github.com/${{ github.repository }}/releases) instead.
+          prerelease: true
+          draft: false
+          files: |
+            webtrees-jsonld-early-access.tar.gz
+            webtrees-jsonld-early-access.zip
+            webtrees-jsonld-early-access.tar.zst
+            checksums.txt

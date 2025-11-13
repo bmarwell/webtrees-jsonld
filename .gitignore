@@ -13,9 +13,11 @@
 /.idea
 
 .phpunit.result.cache
+.phpunit.cache/
 /build/*
 
 cov.xml
+coverage.xml
 
 ./tests/integration/nginx-webtrees/scripts/*
 ./tests/integration/nginx-webtrees/webtrees/*
