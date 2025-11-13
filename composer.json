@@ -10,7 +10,7 @@
     }
   },
   "name": "bmhm/webtrees-jsonld",
-  "license": "Apache 2",
+  "license": "Apache-2.0 OR EUPL-1.2",
   "require": {
     "ext-json": "*"
   },
