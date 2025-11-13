@@ -1,10 +1,12 @@
-FROM php:7-fpm
+FROM php:8-fpm-alpine
 
-RUN apt-get update && apt-get install -y \
-        libfreetype6-dev \
-        libjpeg62-turbo-dev \
+RUN apk add --no-cache \
+        freetype-dev \
+        libjpeg-turbo-dev \
         libpng-dev \
         curl \
-        libzip-dev zlib1g-dev\
-    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    && docker-php-ext-install -j$(nproc) gd zip pdo_mysql mysqli
+        libzip-dev \
+        zlib-dev \
+        icu-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd zip pdo_mysql mysqli intl exif
