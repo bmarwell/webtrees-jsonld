@@ -67,17 +67,23 @@ This module includes both unit and integration tests. The integration tests use 
 #### Running Tests
 
 ```bash
-# Run all tests
+# Run all tests (unit + integration)
 composer test
 
 # Run only unit tests
-make unittest
+composer test:unit
 
-# Run integration tests (requires Docker)
-make integrationtest-testcontainers
+# Run only integration tests (requires Docker)
+composer test:integration
+
+# Build distribution package
+composer dist
+
+# List all available commands
+composer list
 ```
 
-For more information about the integration tests, see [tests/integration/README.md](tests/integration/README.md).
+**Integration Tests:** The integration tests use Docker containers via Testcontainers to test in a real webtrees environment. The custom Docker image with mysqli/pdo_mysql extensions is built automatically when needed. For more details, see [tests/Integration/README.md](tests/Integration/README.md).
 
 ### Links
 

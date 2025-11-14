@@ -51,10 +51,10 @@ jobs:
       - name: Install dependencies
         run: ./composer.phar install --prefer-dist --no-progress --no-interaction
 
-      - name: Run PHPUnit unit tests
-        run: ./composer.phar test:integration
+      - name: Run unit tests
+        run: ./composer.phar test:unit
 
-      - name: Run PHPUnit tests
+      - name: Run integration tests
         run: ./composer.phar test:integration
 
       - name: Upload coverage to Codecov

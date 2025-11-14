@@ -22,13 +22,14 @@ The integration tests require a custom PHP image with mysqli and pdo_mysql exten
 ### Running Integration Tests
 
 ```bash
-# Using Composer (recommended)
+# Using Composer (recommended - runs full workflow)
 composer test:integration
 
-# Using Make
-make integrationtest-testcontainers
+# Or run steps individually
+composer prepare:integration  # Build Docker image
+composer run:integration      # Run tests
 
-# Manual steps
+# Manual steps (if needed)
 php scripts/prepare_integration_tests.php
 php scripts/run_integration_tests.php
 ```

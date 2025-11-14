@@ -14,7 +14,30 @@ sudo snap install phpstorm --classic
 sudo snap install code --classic
 ```
 
-## Committing
+## Testing
 
-* Please execute unit and integration tests before committing.
-* Also make sure to format the code using phpfmt(?).
+Before committing, please run tests to ensure code quality:
+
+```bash
+# Run all tests
+composer test
+
+# Run only unit tests
+composer test:unit
+
+# Run integration tests (requires Docker)
+composer test:integration
+```
+
+## Building
+
+To build the distribution package:
+
+```bash
+# Build complete distribution
+composer dist
+
+# Or step by step:
+composer compile-po      # Compile translations
+composer build-package   # Build package
+```
