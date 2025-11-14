@@ -145,6 +145,41 @@ class WebtreesJsonLdIntegrationTest extends TestCase
      */
     protected function setUp(): void
     {
+        // Ensure distribution is built before running tests
+        $distDir = dirname(__DIR__, 2) . '/build/jsonld';
+        if (!is_dir($distDir)) {
+            echo "Distribution not found. Building distribution...\n";
+            $buildScript = dirname(__DIR__, 2) . '/scripts/build_dist.php';
+            
+            // Run compile_po.php first (if it exists)
+            $compilePoScript = dirname(__DIR__, 2) . '/scripts/compile_po.php';
+            if (file_exists($compilePoScript)) {
+                passthru('php ' . escapeshellarg($compilePoScript), $exitCode);
+                if ($exitCode !== 0) {
+                    $this->markTestSkipped('Failed to compile .po files');
+                }
+            }
+            
+            // Run build_dist.php
+            if (file_exists($buildScript)) {
+                passthru('php ' . escapeshellarg($buildScript), $exitCode);
+                if ($exitCode !== 0) {
+                    $this->markTestSkipped('Failed to build distribution');
+                }
+            }
+            
+            // Verify distribution was created
+            if (!is_dir($distDir)) {
+                $this->markTestSkipped(
+                    sprintf(
+                        'Distribution directory not found at "%s". ' .
+                        'Please run "composer dist" to build the distribution.',
+                        $distDir
+                    )
+                );
+            }
+        }
+        
         try {
             // MySQL container
             self::$mysqlContainer = (new MySQLContainer('9.5'))
