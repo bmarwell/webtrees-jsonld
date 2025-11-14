@@ -9,6 +9,10 @@ use ZipArchive;
 class WebtreesContainer extends GenericContainer
 {
     private static ?StartedGenericContainer $started = null;
+    
+    // Hardcoded webtrees version - update this when updating composer.json
+    // Must be compatible with the version constraint in composer.json require-dev
+    private const WEBTREES_VERSION = '2.2.0';
 
     public function __construct()
     {
@@ -17,68 +21,64 @@ class WebtreesContainer extends GenericContainer
         // expose HTTP port
         $this->withExposedPorts(80);
 
-        $wtVersion = self::getWebtreesVersion();
-        // GitHub API requires a User-Agent header
-        $opts = [
-            "http" => [
-                "header" => "User-Agent: PHP\r\n"
-            ]
-        ];
-        $context = stream_context_create($opts);
-        $releases = file_get_contents("https://api.github.com/repos/fisharebest/webtrees/releases", false, $context);
-        $releases = json_decode($releases, true);
+        // Validate that hardcoded version matches composer.json expectation
+        self::validateWebtreesVersion();
 
-        // find the first release starting with $wtVersion
-        $foundRelease = null;
-        foreach ($releases as $release) {
-            if (str_starts_with($release['tag_name'], $wtVersion)) {
-                $foundRelease = $release;
-                break;
+        $wtVersion = self::WEBTREES_VERSION;
+        
+        // Use project-relative cache directory to avoid re-downloading
+        $cacheDir = dirname(__DIR__, 2) . '/.cache/webtrees';
+        if (!is_dir($cacheDir)) {
+            mkdir($cacheDir, 0755, true);
+        }
+        
+        $zipFile = $cacheDir . "/webtrees-{$wtVersion}.zip";
+        $extractDir = $cacheDir . "/webtrees-{$wtVersion}";
+        
+        // Download only if not cached
+        if (!file_exists($zipFile)) {
+            // Direct download URL - no GitHub API calls
+            $downloadUrl = "https://github.com/fisharebest/webtrees/releases/download/{$wtVersion}/webtrees-{$wtVersion}.zip";
+            
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $downloadUrl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_USERAGENT, 'PHP'); // Required for GitHub
+
+            $zipData = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            
+            if ($zipData === false || $httpCode !== 200) {
+                $error = curl_error($ch);
+                curl_close($ch);
+                throw new \RuntimeException("Failed to download webtrees {$wtVersion} (HTTP $httpCode): $error");
             }
-        }
-
-        if (!$foundRelease) {
-            throw new \RuntimeException("No webtrees release found for version $wtVersion");
-        }
-
-        // ensure assets exist
-        if (empty($foundRelease['assets']) || !isset($foundRelease['assets'][0]['browser_download_url'])) {
-            throw new \RuntimeException("Release does not contain downloadable assets");
-        }
-
-        $downloadUrl = $foundRelease['assets'][0]['browser_download_url'];
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $downloadUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-
-        $zipData = curl_exec($ch);
-        if ($zipData === false) {
-            $error = curl_error($ch);
             curl_close($ch);
-            throw new \RuntimeException("cURL failed: $error");
-        }
-        curl_close($ch);
 
-        $zipFile = tempnam(sys_get_temp_dir(), 'webtrees-');
-        if (file_put_contents($zipFile, $zipData) === false) {
-            throw new \RuntimeException("Failed to write ZIP file to $zipFile");
-        }
-
-        $extractDir = tempnam(sys_get_temp_dir(), 'webtrees-');
-        if (file_exists($extractDir)) { unlink($extractDir); }
-        mkdir($extractDir);
-
-        $zip = new ZipArchive;
-        if ($zip->open($zipFile) === TRUE) {
-            if (!$zip->extractTo($extractDir)) {
-                $zip->close();
-                throw new \RuntimeException("Failed to extract ZIP file to $extractDir");
+            if (file_put_contents($zipFile, $zipData) === false) {
+                throw new \RuntimeException("Failed to write ZIP file to $zipFile");
             }
-            $zip->close();
-            var_dump(scandir($extractDir));
-        } else {
-            throw new \RuntimeException("Failed to extract zip file: $zipFile");
+        }
+
+        // Extract only if not already extracted
+        if (!is_dir($extractDir . '/webtrees')) {
+            if (is_dir($extractDir)) {
+                // Clean up partial extraction
+                self::removeDirectory($extractDir);
+            }
+            mkdir($extractDir, 0755, true);
+
+            $zip = new ZipArchive;
+            if ($zip->open($zipFile) === TRUE) {
+                if (!$zip->extractTo($extractDir)) {
+                    $zip->close();
+                    throw new \RuntimeException("Failed to extract ZIP file to $extractDir");
+                }
+                $zip->close();
+            } else {
+                throw new \RuntimeException("Failed to open zip file: $zipFile");
+            }
         }
 
         // copy webtrees core into /var/www/html
@@ -120,31 +120,52 @@ class WebtreesContainer extends GenericContainer
     }
 
     /**
-     * Get the webtrees version from composer.json.
-     * Parses the version constraint and returns a usable version string.
+     * Validate that the hardcoded WEBTREES_VERSION is compatible with composer.json.
+     * Throws an exception if they don't match to remind us to update the constant.
      */
-    private static function getWebtreesVersion(): string
+    private static function validateWebtreesVersion(): void
     {
         $composerFile = dirname(__DIR__, 2) . '/composer.json';
         if (!file_exists($composerFile)) {
-            return '2.1'; // Fallback version
+            return; // Skip validation if composer.json not found
         }
 
         $composer = json_decode(file_get_contents($composerFile), true);
         $versionConstraint = $composer['require-dev']['fisharebest/webtrees'] ?? '^2.2';
 
-        // Parse version constraint like "^2.2" to get "2.2"
-        // Remove constraint operators: ^, ~, >=, <=, >, <
+        // Parse version constraint like "^2.2" to get major.minor
         $version = preg_replace('/^[\^~><=]+/', '', $versionConstraint);
-
-        // If we have something like "2.2.0", use "2.2"
-        // If we have "2.2", use it as is
         $parts = explode('.', $version);
-        if (count($parts) >= 2) {
-            return $parts[0] . '.' . $parts[1];
-        }
+        $expectedMajorMinor = (count($parts) >= 2) ? $parts[0] . '.' . $parts[1] : $version;
 
-        return $version ?: '2.1'; // Fallback if parsing fails
+        // Check if hardcoded version is compatible
+        $hardcodedParts = explode('.', self::WEBTREES_VERSION);
+        $hardcodedMajorMinor = (count($hardcodedParts) >= 2) ? $hardcodedParts[0] . '.' . $hardcodedParts[1] : self::WEBTREES_VERSION;
+
+        if ($hardcodedMajorMinor !== $expectedMajorMinor) {
+            throw new \RuntimeException(
+                "Webtrees version mismatch: hardcoded version " . self::WEBTREES_VERSION . 
+                " doesn't match composer.json constraint {$versionConstraint}. " .
+                "Please update WebtreesContainer::WEBTREES_VERSION to match."
+            );
+        }
+    }
+    
+    /**
+     * Recursively remove a directory and its contents.
+     */
+    private static function removeDirectory(string $dir): void
+    {
+        if (!is_dir($dir)) {
+            return;
+        }
+        
+        $files = array_diff(scandir($dir), ['.', '..']);
+        foreach ($files as $file) {
+            $path = $dir . '/' . $file;
+            is_dir($path) ? self::removeDirectory($path) : unlink($path);
+        }
+        rmdir($dir);
     }
 
 }
