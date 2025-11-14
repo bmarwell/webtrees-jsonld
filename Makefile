@@ -6,7 +6,7 @@ PO_FILES=$(wildcard $(LANGUAGE_DIR)/*.po)
 SHELL=bash
 MKDIR=mkdir -p
 
-.PHONY: clean update vendor build/jsonld test unittest integrationtest-testcontainers
+.PHONY: clean update vendor build/jsonld test unittest integrationtest-testcontainers dist
 
 all: init src/jsonld/language/messages.pot update test build/jsonld.tar.bz2
 
@@ -25,7 +25,7 @@ unittest: init
 	php vendor/bin/phpunit --testsuite="Unit Tests"
 
 integrationtest-testcontainers: init
-	php vendor/bin/phpunit --testsuite="Integration Tests"
+	composer test:integration
 
 integrationtest-pre:
 	cp -r ./tests/integration/scripts ./tests/integration/nginx-webtrees/
@@ -37,17 +37,18 @@ integrationtest: init update build/jsonld integrationtest-pre
 	./tests/integration/run.sh || echo "see error."
 	#docker-compose --project-name "webtrees-integration" --file tests/integration/docker-compose.yml down
 
-update: src/jsonld/language/messages.pot $(MO_FILES)
+update: src/jsonld/language/messages.pot
+	composer compile-po
 
 vendor:
 	php composer.phar self-update
 	php composer.phar install
 	php composer.phar dump-autoload --optimize
 
-build/jsonld: src/jsonld/language/messages.pot update
-	$(MKDIR) build
-	cp -R src/jsonld/ build/
-	cp module.php build/jsonld/
+dist: init
+	composer dist
+
+build/jsonld: dist
 
 build/jsonld.tar.bz2: build/jsonld
 	tar cvjf $@ $^

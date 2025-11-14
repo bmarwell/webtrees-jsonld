@@ -19,7 +19,9 @@
     "fisharebest/webtrees": "^2.2",
     "testcontainers/testcontainers": "^1.0",
     "ext-curl": "*",
-    "ext-zip": "*"
+    "ext-zip": "*",
+    "gettext/gettext": "^5.7",
+    "symfony/filesystem": "^7.0"
   },
   "autoload": {
     "psr-4": {
@@ -35,5 +37,17 @@
     "allow-plugins": {
       "php-http/discovery": true
     }
+  },
+  "scripts": {
+    "dist": [
+      "@compile-po",
+      "@build-package"
+    ],
+    "compile-po": "php scripts/compile_po.php",
+    "build-package": "php scripts/build_dist.php",
+    "test:integration": [
+      "@dist",
+      "php scripts/run_integration_tests.php"
+    ]
   }
 }
