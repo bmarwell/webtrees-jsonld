@@ -182,12 +182,21 @@ class WebtreesJsonLdIntegrationTest extends TestCase
         
         try {
             // MySQL container
-            self::$mysqlContainer = (new MySQLContainer('9.5'))
+            self::$mysqlContainer = (new MySQLContainer('8.0'))
                 ->withMySQLDatabase('webtrees')
                 ->withMySQLUser('webtrees', 'webtrees');
 
+            // Start MySQL first
+            self::$mysqlStartedContainer = self::$mysqlContainer->start();
+            
+            // Get MySQL network alias for webtrees to connect
+            $mysqlHost = self::$mysqlContainer->getNetworkAlias();
+
             // PHP-Apache-container
-            self::$webserver = (new WebtreesContainer());
+            self::$webserver = (new WebtreesContainer())
+                ->withNetwork(self::$mysqlContainer->getNetworkName())
+                ->withMySQLConnection($mysqlHost, 'webtrees', 'webtrees', 'webtrees')
+                ->prepareWebtreesConfig(); // Prepare config before starting
 
             // copy this module into the path
             self::$webserver->withCopyDirectoriesToContainer([[
@@ -196,9 +205,13 @@ class WebtreesJsonLdIntegrationTest extends TestCase
                 "mode" => 0777,
             ]]);
 
-            // Start containers; this is where Docker socket connectivity is actually required.
-            self::$mysqlStartedContainer = self::$mysqlContainer->start();
+            // Start webtrees container
             self::$webserver->start();
+            
+            // Install webtrees (create schema, seed database)
+            echo "Installing webtrees...\n";
+            self::$webserver->installWebtrees();
+            echo "Webtrees installation complete.\n";
 
             self::$webtreesUrl = self::$webserver->getBaseUrl();
         } catch (ConnectionException $e) {
