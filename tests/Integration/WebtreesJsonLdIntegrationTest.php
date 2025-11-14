@@ -189,12 +189,41 @@ class WebtreesJsonLdIntegrationTest extends TestCase
             // Start MySQL first
             self::$mysqlStartedContainer = self::$mysqlContainer->start();
             
-            // Get MySQL network alias for webtrees to connect
-            $mysqlHost = self::$mysqlContainer->getNetworkAlias();
+            // Get MySQL container name for container-to-container communication
+            // Docker DNS resolves container names within the same network
+            $networkName = self::$mysqlStartedContainer->getNetworkNames()[0];
+            $mysqlHost = self::$mysqlStartedContainer->getName();
+            
+            // Wait for MySQL to be fully ready by checking port connectivity
+            echo "Waiting for MySQL to be ready...\n";
+            $maxWait = 30;
+            $mysqlReady = false;
+            for ($i = 0; $i < $maxWait; $i++) {
+                $connection = @fsockopen(
+                    self::$mysqlStartedContainer->getHost(),
+                    self::$mysqlStartedContainer->getMappedPort(3306),
+                    $errno,
+                    $errstr,
+                    2
+                );
+                if ($connection !== false) {
+                    fclose($connection);
+                    $mysqlReady = true;
+                    echo "✓ MySQL port is accessible\n";
+                    // Give MySQL a bit more time to complete initialization
+                    sleep(3);
+                    break;
+                }
+                sleep(1);
+            }
+            
+            if (!$mysqlReady) {
+                throw new \RuntimeException("MySQL port not accessible after {$maxWait} seconds");
+            }
 
             // PHP-Apache-container
             self::$webserver = (new WebtreesContainer())
-                ->withNetwork(self::$mysqlContainer->getNetworkName())
+                ->withNetwork($networkName)
                 ->withMySQLConnection($mysqlHost, 'webtrees', 'webtrees', 'webtrees')
                 ->prepareWebtreesConfig(); // Prepare config before starting
 
@@ -207,6 +236,10 @@ class WebtreesJsonLdIntegrationTest extends TestCase
 
             // Start webtrees container
             self::$webserver->start();
+            
+            // Give containers time to fully initialize on the network
+            echo "Waiting for network initialization...\n";
+            sleep(5);
             
             // Install webtrees (create schema, seed database)
             echo "Installing webtrees...\n";

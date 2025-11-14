@@ -48,6 +48,7 @@
     "test:unit": [ "php vendor/bin/phpunit --testsuite='Unit Tests' --coverage-clover=coverage/unit.xml" ],
     "test:integration": [
       "@dist",
+      "php scripts/prepare_integration_tests.php",
       "php scripts/run_integration_tests.php"
     ],
     "test": [ "@test:unit", "@test:integration" ]

@@ -24,8 +24,9 @@ test: init
 unittest: init
 	php vendor/bin/phpunit --testsuite="Unit Tests"
 
-integrationtest-testcontainers: init
-	composer test:integration
+integrationtest-testcontainers: init dist
+	php scripts/prepare_integration_tests.php
+	php scripts/run_integration_tests.php
 
 integrationtest-pre:
 	cp -r ./tests/integration/scripts ./tests/integration/nginx-webtrees/

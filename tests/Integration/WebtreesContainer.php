@@ -21,7 +21,9 @@ class WebtreesContainer extends GenericContainer
 
     public function __construct()
     {
-        parent::__construct('php:8-apache');
+        // Use custom image with mysqli extension pre-installed
+        // Image is built by scripts/prepare_integration_tests.php
+        parent::__construct('webtrees-php:8-apache-mysqli');
 
         // expose HTTP port
         $this->withExposedPorts(80);
@@ -92,12 +94,13 @@ class WebtreesContainer extends GenericContainer
             'target' => '/var/www/html',
             'mode'   => 0777,
         ]]);
+
+
     }
 
     public function start(): StartedGenericContainer
     {
         self::$started = parent::start();
-
         return self::$started;
     }
 
@@ -154,7 +157,9 @@ dbport="3306"
 dbuser="{$this->mysqlUser}"
 dbpass="{$this->mysqlPassword}"
 dbname="{$this->mysqlDatabase}"
+driver="mysql"
 tblpfx="wt_"
+rewrite_urls="1"
 CONFIG;
 
         // Create config file in cache directory
@@ -163,7 +168,12 @@ CONFIG;
         file_put_contents($configFile, $configContent);
         
         // Copy config file to container's data directory
-        $this->withCopyFileToContainer($configFile, '/var/www/html/data/config.ini.php');
+        $this->withCopyFilesToContainer([
+            [
+                "source" => $configFile,
+                "target" => '/var/www/html/data/config.ini.php'
+            ]
+        ]);
         
         return $this;
     }
@@ -221,7 +231,7 @@ CONFIG;
             $response = curl_exec($ch);
             curl_close($ch);
         }
-        
+
         // At this point, webtrees should have created the database schema
         // Verify by checking if we can access the site
         $ch = curl_init($baseUrl);
@@ -231,9 +241,9 @@ CONFIG;
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-        
+
         if ($httpCode >= 500) {
-            throw new \RuntimeException("Webtrees returned HTTP $httpCode after installation attempt");
+            throw new \RuntimeException("Webtrees returned HTTP $httpCode after installation attempt. Check logs for details.");
         }
     }
     
