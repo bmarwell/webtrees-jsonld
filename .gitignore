@@ -3,6 +3,7 @@
 /vendor/
 /vendor/**/.git
 /build
+/coverage
 /.vscode
 .vscode/*
 

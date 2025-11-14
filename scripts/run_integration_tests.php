@@ -42,7 +42,7 @@ echo "---------------------------------------------------\n";
 
 $phpunitBin = __DIR__ . '/../vendor/bin/phpunit';
 $command = sprintf(
-    '%s --testsuite="Integration Tests" --testdox',
+    '%s --testsuite="Integration Tests" --testdox --coverage-clover=coverage/integration.xml',
     escapeshellarg($phpunitBin)
 );
 
