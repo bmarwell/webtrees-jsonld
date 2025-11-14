@@ -16,7 +16,12 @@
   },
   "require-dev": {
     "phpunit/phpunit": "^10.5",
-    "fisharebest/webtrees": "^2.2"
+    "fisharebest/webtrees": "^2.2",
+    "testcontainers/testcontainers": "^1.0",
+    "ext-curl": "*",
+    "ext-zip": "*",
+    "gettext/gettext": "^5.7",
+    "symfony/filesystem": "^7.0"
   },
   "autoload": {
     "psr-4": {
@@ -24,8 +29,43 @@
     }
   },
   "autoload-dev": {
-    "psr-0": {
-      "bmhm\\WebtreesModules\\jsonld\\test\\": "tests/unit"
+    "psr-4": {
+      "Tests\\": "tests/"
     }
+  },
+  "config": {
+    "allow-plugins": {
+      "php-http/discovery": true
+    }
+  },
+  "scripts": {
+    "compile-po": "php scripts/compile_po.php",
+    "build-package": "php scripts/build_dist.php",
+    "dist": [
+      "@compile-po",
+      "@build-package"
+    ],
+    "test:unit": "php vendor/bin/phpunit --testsuite='Unit Tests' --coverage-clover=coverage/unit.xml",
+    "prepare:integration": "php scripts/prepare_integration_tests.php",
+    "run:integration": "php scripts/run_integration_tests.php",
+    "test:integration": [
+      "@dist",
+      "@prepare:integration",
+      "@run:integration"
+    ],
+    "test": [
+      "@test:unit",
+      "@test:integration"
+    ]
+  },
+  "scripts-descriptions": {
+    "compile-po": "Compiles gettext .po files to binary .mo format for translations",
+    "build-package": "Creates the distribution package in build/ directory",
+    "dist": "Complete distribution build process",
+    "test:unit": "Runs PHPUnit unit tests with code coverage reports",
+    "prepare:integration": "Builds custom Docker image with mysqli/pdo_mysql extensions",
+    "run:integration": "Executes integration tests using Testcontainers",
+    "test:integration": "Full integration test suite (includes build and Docker setup)",
+    "test": "Complete test suite (unit + integration)"
   }
 }

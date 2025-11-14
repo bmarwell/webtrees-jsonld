@@ -2,7 +2,7 @@
 <phpunit
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
-  bootstrap="vendor/autoload.php"
+  bootstrap="tests/bootstrap-integration.php"
   colors="true"
   cacheDirectory=".phpunit.cache"
   displayDetailsOnTestsThatTriggerWarnings="true"
@@ -14,8 +14,11 @@
   </php>
 
   <testsuites>
-    <testsuite name="Application Test Suite">
-      <directory suffix="Test.php">./tests/</directory>
+    <testsuite name="Unit Tests">
+      <directory suffix="Test.php">./tests/Unit</directory>
+    </testsuite>
+    <testsuite name="Integration Tests">
+      <directory suffix="Test.php">./tests/Integration</directory>
     </testsuite>
   </testsuites>
 

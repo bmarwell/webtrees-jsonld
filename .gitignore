@@ -3,6 +3,7 @@
 /vendor/
 /vendor/**/.git
 /build
+/coverage
 /.vscode
 .vscode/*
 
@@ -15,6 +16,7 @@
 .phpunit.result.cache
 .phpunit.cache/
 /build/*
+/.cache/
 
 cov.xml
 coverage.xml

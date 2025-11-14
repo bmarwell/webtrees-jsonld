@@ -49,16 +49,19 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction
+        run: ./composer.phar install --prefer-dist --no-progress --no-interaction
 
-      - name: Run PHPUnit tests
-        run: vendor/bin/phpunit --coverage-clover=coverage.xml
+      - name: Run unit tests
+        run: ./composer.phar test:unit
+
+      - name: Run integration tests
+        run: ./composer.phar test:integration
 
       - name: Upload coverage to Codecov
         if: matrix.php-version == '8.3'
         uses: codecov/codecov-action@v3
         with:
-          files: ./coverage.xml
+          files: ./coverage/unit.xml,./converage/integration.xml
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: false

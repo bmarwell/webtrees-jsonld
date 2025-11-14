@@ -60,6 +60,31 @@ curl -so - "http://​path.to/​webtrees/​individual.​php?​pid=I1&​ged=
     jq -C '.​'
 ```
 
+### Development and Testing
+
+This module includes both unit and integration tests. The integration tests use [Testcontainers](https://github.com/testcontainers/testcontainers-php) to spin up Docker containers for testing in a real webtrees environment.
+
+#### Running Tests
+
+```bash
+# Run all tests (unit + integration)
+composer test
+
+# Run only unit tests
+composer test:unit
+
+# Run only integration tests (requires Docker)
+composer test:integration
+
+# Build distribution package
+composer dist
+
+# List all available commands
+composer list
+```
+
+**Integration Tests:** The integration tests use Docker containers via Testcontainers to test in a real webtrees environment. The custom Docker image with mysqli/pdo_mysql extensions is built automatically when needed. For more details, see [tests/Integration/README.md](tests/Integration/README.md).
+
 ### Links
 
 * Forum discussion: [Webtrees: Schema.org](http://www.webtrees.net/index.php/en/forum/2-open-discussion/27014-schema-org).
