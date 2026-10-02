@@ -11,6 +11,7 @@
 
 namespace bmhm\WebtreesModules\jsonld;
 
+#[\AllowDynamicProperties]
 abstract class JsonLD {
 
   /**
