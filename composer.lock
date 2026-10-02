@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6f36bbef65f9c80fa83e4d6802356bd9",
+    "content-hash": "f4177b05f5f048035fa29d81ed5f135b",
     "packages": [],
     "packages-dev": [
         {
@@ -798,16 +798,16 @@
         },
         {
             "name": "fisharebest/webtrees",
-            "version": "2.2.4",
+            "version": "2.2.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fisharebest/webtrees.git",
-                "reference": "18bf6a4e4f6811ac9d5b342b163b061e58e628a0"
+                "reference": "c1455b37082d8b6541dc6c3f42fa2a69c31473d4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fisharebest/webtrees/zipball/18bf6a4e4f6811ac9d5b342b163b061e58e628a0",
-                "reference": "18bf6a4e4f6811ac9d5b342b163b061e58e628a0",
+                "url": "https://api.github.com/repos/fisharebest/webtrees/zipball/c1455b37082d8b6541dc6c3f42fa2a69c31473d4",
+                "reference": "c1455b37082d8b6541dc6c3f42fa2a69c31473d4",
                 "shasum": ""
             },
             "require": {
@@ -823,22 +823,22 @@
                 "ext-pdo": "*",
                 "ext-session": "*",
                 "ext-xml": "*",
-                "ezyang/htmlpurifier": "4.18.0",
+                "ezyang/htmlpurifier": "4.19.0",
                 "fig/http-message-util": "1.1.5",
                 "fisharebest/algorithm": "1.6.0",
                 "fisharebest/ext-calendar": "2.6.0",
                 "fisharebest/localization": "1.17.0",
-                "guzzlehttp/guzzle": "7.9.3",
-                "illuminate/database": "12.21.0",
-                "illuminate/support": "12.21.0",
-                "intervention/image": "3.11.4",
-                "league/commonmark": "2.7.1",
-                "league/flysystem": "3.30.0",
-                "league/flysystem-path-prefixing": "3.28.0",
-                "league/flysystem-ziparchive": "3.29.0",
+                "guzzlehttp/guzzle": "7.10.0",
+                "illuminate/database": "12.58.0",
+                "illuminate/support": "12.58.0",
+                "intervention/image": "3.11.7",
+                "league/commonmark": "2.8.2",
+                "league/flysystem": "3.33.0",
+                "league/flysystem-path-prefixing": "3.31.0",
+                "league/flysystem-ziparchive": "3.31.0",
                 "middlewares/client-ip": "2.1.0",
-                "mlocati/ip-lib": "1.20.0",
-                "nesbot/carbon": "3.10.2",
+                "mlocati/ip-lib": "1.22.0",
+                "nesbot/carbon": "3.11.4",
                 "nyholm/psr7": "1.8.2",
                 "nyholm/psr7-server": "1.1.0",
                 "php": "8.3 - 8.5",
@@ -846,29 +846,28 @@
                 "psr/http-message": "2.0",
                 "psr/http-server-handler": "1.0.2",
                 "psr/http-server-middleware": "1.0.2",
-                "ramsey/uuid": "4.9.0",
-                "sabre/vobject": "4.5.7",
-                "symfony/cache": "7.3.2",
-                "symfony/console": "7.3.2",
-                "symfony/expression-language": "7.3.2",
-                "symfony/mailer": "7.3.2",
-                "symfony/polyfill-mbstring": "1.32.0",
-                "tecnickcom/tcpdf": "6.10.0"
+                "ramsey/uuid": "4.9.2",
+                "sabre/vobject": "4.5.8",
+                "symfony/cache": "7.4.8",
+                "symfony/console": "7.4.8",
+                "symfony/expression-language": "7.4.8",
+                "symfony/mailer": "7.4.8",
+                "symfony/polyfill-mbstring": "1.37.0",
+                "tecnickcom/tcpdf": "6.11.3"
             },
             "require-dev": {
                 "ext-dom": "*",
                 "ext-libxml": "*",
                 "ext-pdo_sqlite": "*",
                 "ext-sqlite3": "*",
-                "league/flysystem-memory": "3.29.0",
+                "league/flysystem-memory": "3.31.0",
                 "php-coveralls/php-coveralls": "2.8.0",
                 "phpstan/extension-installer": "1.4.3",
-                "phpstan/phpstan": "2.1.21",
-                "phpstan/phpstan-deprecation-rules": "2.0.3",
-                "phpstan/phpstan-phpunit": "2.0.7",
-                "phpstan/phpstan-strict-rules": "2.0.6",
-                "phpunit/phpunit": "12.3.0",
-                "squizlabs/php_codesniffer": "4.0.0-RC1"
+                "phpstan/phpstan": "2.1.51",
+                "phpstan/phpstan-deprecation-rules": "2.0.4",
+                "phpstan/phpstan-phpunit": "2.0.16",
+                "phpunit/phpunit": "12.5.23",
+                "squizlabs/php_codesniffer": "4.0.1"
             },
             "suggest": {
                 "ext-imagick": "Required to generate thumbnail images",
@@ -901,7 +900,7 @@
                 "issues": "https://github.com/fisharebest/webtrees/issues",
                 "source": "https://github.com/fisharebest/webtrees/tree/2.2.4"
             },
-            "time": "2025-08-04T17:12:52+00:00"
+            "time": "2026-04-29T10:09:15+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
